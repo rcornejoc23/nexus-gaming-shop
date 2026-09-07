@@ -1,6 +1,6 @@
-/* CONFIGURACIÓN GENERAL */
+CONFIGURACIÓN GENERAL
 
-* {
+ {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -79,7 +79,7 @@ button {
 }
 
 
-/* SECCIÓN PRINCIPAL */
+/* SECCIÓN PRINCIPAL CSS */
 
 .principal {
     background-color: #1f2937;
@@ -146,7 +146,7 @@ button {
 }
 
 
-/* PRODUCTOS */
+/* PRODUCTOS CSS */
 
 .productos {
     padding: 60px 0;
@@ -220,7 +220,7 @@ button {
 }
 
 
-/* FOOTER */
+/* FOOTER CSS */
 
 footer {
     background-color: #111827;
@@ -277,4 +277,176 @@ footer .contenedor {
         width: 100%;
     }
 
+}
+
+/* FORMULARIOS CSS */
+
+.seccion-formulario {
+    padding: 60px 0;
+}
+
+
+.formulario-contenedor {
+    max-width: 600px;
+
+    margin: auto;
+
+    background-color: white;
+
+    padding: 30px;
+
+    border-radius: 10px;
+
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+.formulario-contenedor h1 {
+    text-align: center;
+
+    margin-bottom: 10px;
+}
+
+
+.formulario-subtitulo {
+    text-align: center;
+
+    color: #666;
+
+    margin-bottom: 30px;
+}
+
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+
+.form-group label {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-weight: bold;
+}
+
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+
+    width: 100%;
+
+    padding: 10px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 5px;
+
+}
+
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+
+    outline: none;
+
+    border-color: #7c3aed;
+
+}
+
+
+.btn-formulario {
+
+    width: 100%;
+
+    padding: 12px;
+
+    border: none;
+
+    border-radius: 5px;
+
+    background-color: #7c3aed;
+
+    color: white;
+
+    font-size: 16px;
+
+}
+
+
+.btn-formulario:hover {
+    background-color: #6d28d9;
+}
+
+
+.mensaje-error {
+
+    color: #dc2626;
+
+    font-size: 13px;
+
+    margin-top: 5px;
+
+}
+
+
+.formulario-footer {
+
+    text-align: center;
+
+    margin-top: 20px;
+
+}
+
+
+.formulario-footer a {
+    color: #7c3aed;
+
+    font-weight: bold;
+}
+
+/* NOSOTROS CSS */
+
+.nosotros {
+    padding: 60px 0;
+}
+
+
+.nosotros h1 {
+    margin-bottom: 20px;
+}
+
+
+.nosotros h2 {
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+
+
+.nosotros p {
+    margin-bottom: 15px;
+
+    color: #555;
+}
+
+
+.desarrolladores {
+    display: flex;
+
+    gap: 20px;
+}
+
+
+.desarrollador {
+    width: 50%;
+
+    background-color: white;
+
+    padding: 20px;
+
+    border-radius: 8px;
+
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }

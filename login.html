@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Iniciar sesión - NEXUS Gaming</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <header>
+
+        <nav class="navbar">
+
+            <div class="contenedor">
+
+                <h2 class="logo">
+                    NEXUS Gaming
+                </h2>
+
+                <div class="menu">
+                    <a href="index.html">Inicio</a>
+                    <a href="productos.html">Productos</a>
+                    <a href="nosotros.html">Nosotros</a>
+                    <a href="blog.html">Blog</a>
+                    <a href="contacto.html">Contacto</a>
+                </div>
+
+                <div class="acciones">
+                    <a href="registro.html">Registrarse</a>
+                </div>
+
+            </div>
+
+        </nav>
+
+    </header>
+
+
+    <main>
+
+        <section class="seccion-formulario">
+
+            <div class="contenedor">
+
+                <div class="formulario-contenedor">
+
+                    <h1>Iniciar sesión</h1>
+
+                    <p class="formulario-subtitulo">
+                        Ingresa a tu cuenta de NEXUS Gaming.
+                    </p>
+
+                    <form id="formLogin">
+
+                        <div class="form-group">
+
+                            <label for="correoLogin">
+                                Correo
+                            </label>
+
+                            <input
+                                type="email"
+                                id="correoLogin"
+                                maxlength="100"
+                            >
+
+                            <p
+                                class="mensaje-error"
+                                id="errorCorreoLogin">
+                            </p>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="password">
+                                Contraseña
+                            </label>
+
+                            <input
+                                type="password"
+                                id="password"
+                                minlength="4"
+                                maxlength="10"
+                            >
+
+                            <p
+                                class="mensaje-error"
+                                id="errorPassword">
+                            </p>
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            class="btn-formulario">
+
+                            Iniciar sesión
+
+                        </button>
+
+                    </form>
+
+
+                    <p class="formulario-footer">
+
+                        ¿No tienes cuenta?
+
+                        <a href="registro.html">
+                            Regístrate
+                        </a>
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="js/login.js"></script>
+
+</body>
+
+</html>
