@@ -5,14 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Productos - NEXUS Gaming</title>
+    <title>Carrito - NEXUS Gaming</title>
 
     <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
 
-    <!-- NAVBAR -->
     <header>
 
         <nav class="navbar">
@@ -34,7 +33,9 @@
                 <div class="acciones">
                     <a href="login.html">Iniciar sesión</a>
                     <a href="registro.html">Registrarse</a>
-                    <a href="carrito.html" id="carritoContador">Carrito (0)</a>
+                    <a href="carrito.html">
+                        Carrito (<span id="carritoContador">0</span>)
+                    </a>
                 </div>
 
             </div>
@@ -44,27 +45,27 @@
     </header>
 
 
-    <!-- CONTENIDO PRINCIPAL -->
     <main>
 
-        <section class="productos">
+        <section class="carrito">
 
             <div class="contenedor">
 
-                <h1>Productos</h1>
+                <h1>Carrito de compras</h1>
 
-                <p class="productos-intro">
-                    Encuentra accesorios y periféricos para mejorar tu setup.
-                </p>
+                <div id="listaCarrito">
+                </div>
 
 
-                <!--
-                    Los productos se mostrarán aquí
-                    utilizando JavaScript.
-                -->
-                <div
-                    class="lista-productos"
-                    id="listaProductos">
+                <div class="carrito-total">
+
+                    <h2>
+                        Total:
+                        <span id="totalCarrito">
+                            $0
+                        </span>
+                    </h2>
+
                 </div>
 
             </div>
@@ -74,14 +75,11 @@
     </main>
 
 
-    <!-- FOOTER -->
     <footer>
 
         <div class="contenedor">
 
-            <p>
-                NEXUS Gaming
-            </p>
+            <p>NEXUS Gaming</p>
 
             <p>
                 Proyecto Desarrollo Fullstack II
@@ -92,8 +90,7 @@
     </footer>
 
 
-    //<!-- JAVASCRIPT LLAMADO DE FUNCION .js -->
-    <script src="js/productos.js"></script>
+    <script src="js/carrito.js"></script>
 
 </body>
 
