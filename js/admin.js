@@ -324,3 +324,103 @@ cargarTablaProductos();
 cargarProductoParaEditar();
 
 cargarTablaProductos();
+
+function cargarDashboard() {
+
+    let totalProductos =
+        document.getElementById("totalProductos");
+
+    let totalUsuarios =
+        document.getElementById("totalUsuarios");
+
+    let stockCritico =
+        document.getElementById("stockCritico");
+
+
+    /*
+        ==============================
+        USUARIOS
+        ==============================
+    */
+
+    let usuariosGuardados =
+        JSON.parse(
+            localStorage.getItem("usuariosAdmin")
+        );
+
+
+    if (usuariosGuardados != null) {
+
+        totalUsuarios.innerHTML =
+            usuariosGuardados.length;
+
+    } else {
+
+        totalUsuarios.innerHTML = 0;
+
+    }
+
+
+    /*
+        ==============================
+        PRODUCTOS
+        ==============================
+    */
+
+    let productosGuardados =
+        JSON.parse(
+            localStorage.getItem("productosAdmin")
+        );
+
+
+    if (productosGuardados != null) {
+
+        totalProductos.innerHTML =
+            productosGuardados.length;
+
+
+        /*
+            ==============================
+            STOCK CRÍTICO
+            ==============================
+
+            Contamos cuántos productos tienen
+            stock menor o igual a stockCritico.
+        */
+
+        let cantidadStockCritico = 0;
+
+
+        for (
+            let i = 0;
+            i < productosGuardados.length;
+            i++
+        ) {
+
+            if (
+                productosGuardados[i].stock <=
+                productosGuardados[i].stockCritico
+            ) {
+
+                cantidadStockCritico++;
+
+            }
+
+        }
+
+
+        stockCritico.innerHTML =
+            cantidadStockCritico;
+
+    } else {
+
+        totalProductos.innerHTML = 0;
+
+        stockCritico.innerHTML = 0;
+
+    }
+
+}
+
+
+cargarDashboard();
