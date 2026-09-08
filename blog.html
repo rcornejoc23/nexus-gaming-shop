@@ -1,125 +1,109 @@
 <!DOCTYPE html>
 <html lang="es">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Blog - NEXUS Gaming</title>
-
-    <link rel="stylesheet" href="css/style.css">
-</head>
-
-<body>
-
-    <header>
-
-        <nav class="navbar">
-
-            <div class="contenedor">
-
-                <h2 class="logo">NEXUS Gaming</h2>
-
-                <div class="menu">
-                    <a href="index.html">Inicio</a>
-                    <a href="productos.html">Productos</a>
-                    <a href="nosotros.html">Nosotros</a>
-                    <a href="blog.html">Blog</a>
-                    <a href="contacto.html">Contacto</a>
-                </div>
-
-                <div class="acciones">
-                    <a href="login.html">Iniciar sesión</a>
-                    <a href="registro.html">Registrarse</a>
-                </div>
-
-            </div>
-
-        </nav>
-
-    </header>
-
-
-    <main>
-
-        <section class="blog">
-
-            <div class="contenedor">
-
-                <h1>Blog NEXUS Gaming</h1>
-
-                <p class="blog-intro">
-                    Noticias, recomendaciones y curiosidades para mejorar tu setup gaming.
-                </p>
-
-
-                <div class="lista-blog">
-
-                    <article class="blog-card">
-
-                        <div class="blog-imagen">
-                            Imagen artículo
-                        </div>
-
-                        <div class="blog-contenido">
-
-                            <h2>
-                                5 accesorios esenciales para tu setup
-                            </h2>
-
-                            <p>
-                                Conoce algunos accesorios que pueden mejorar
-                                la comodidad y experiencia de tu escritorio.
-                            </p>
-
-                            <a
-                                href="blog-detalle-1.html"
-                                class="btn-blog"
-                            >
-                                Leer más
-                            </a>
-
-                        </div>
-
-                    </article>
-
-
-                    <article class="blog-card">
-
-                        <div class="blog-imagen">
-                            Imagen artículo
-                        </div>
-
-                        <div class="blog-contenido">
-
-                            <h2>
-                                ¿Teclado mecánico o de membrana?
-                            </h2>
-
-                            <p>
-                                Revisa las principales diferencias para elegir
-                                el teclado que mejor se adapte a tu setup.
-                            </p>
-
-                            <a
-                                href="blog-detalle-2.html"
-                                class="btn-blog"
-                            >
-                                Leer más
-                            </a>
-
-                        </div>
-
-                    </article>
-
-                </div>
-
-            </div>
-
-        </section>
-
-    </main>
-
-</body>
-
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   Blog - NEXUS Gaming
+  </title>
+  <link href="css/style.css" rel="stylesheet"/>
+ </head>
+ <body>
+  <header>
+   <nav class="navbar">
+    <div class="contenedor">
+     <a class="logo" href="index.html">
+      NEXUS Gaming
+     </a>
+     <div class="menu">
+      <a href="index.html">
+       Inicio
+      </a>
+      <a href="productos.html">
+       Productos
+      </a>
+      <a href="nosotros.html">
+       Nosotros
+      </a>
+      <a href="blog.html">
+       Blog
+      </a>
+      <a href="contacto.html">
+       Contacto
+      </a>
+     </div>
+     <div class="acciones">
+      <a href="login.html">
+       Iniciar sesión
+      </a>
+      <a href="registro.html">
+       Registrarse
+      </a>
+      <a href="carrito.html">
+       Carrito (
+       <span id="carritoContador">
+        0
+       </span>
+       )
+      </a>
+     </div>
+    </div>
+   </nav>
+  </header>
+  <main>
+   <section class="blog">
+    <div class="contenedor">
+     <h1>
+      Blog NEXUS Gaming
+     </h1>
+     <p class="blog-intro">
+      Noticias, recomendaciones y curiosidades para mejorar tu setup gaming.
+     </p>
+     <div class="lista-blog">
+      <article class="blog-card">
+       <img alt="Setup gamer" class="blog-imagen" src="img/blog1.jpg"/>
+       <div class="blog-contenido">
+        <h2>
+         5 accesorios esenciales para tu setup
+        </h2>
+        <p>
+         Conoce accesorios que pueden mejorar la comodidad y experiencia de tu escritorio.
+        </p>
+        <a class="btn-blog" href="blog-detalle-1.html">
+         Leer más
+        </a>
+       </div>
+      </article>
+      <article class="blog-card">
+       <img alt="Periféricos gamer" class="blog-imagen" src="img/blog2.jpg"/>
+       <div class="blog-contenido">
+        <h2>
+         ¿Teclado mecánico o de membrana?
+        </h2>
+        <p>
+         Revisa las principales diferencias para elegir el teclado que mejor se adapte a ti.
+        </p>
+        <a class="btn-blog" href="blog-detalle-2.html">
+         Leer más
+        </a>
+       </div>
+      </article>
+     </div>
+    </div>
+   </section>
+  </main>
+  <footer>
+   <div class="contenedor">
+    <p>
+     <strong>
+      NEXUS Gaming
+     </strong>
+    </p>
+    <p>
+     Proyecto Desarrollo Fullstack II - Parcial 1
+    </p>
+   </div>
+  </footer>
+ </body>
 </html>
+

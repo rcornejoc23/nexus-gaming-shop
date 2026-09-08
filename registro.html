@@ -1,169 +1,142 @@
 <!DOCTYPE html>
 <html lang="es">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro - NEXUS Gaming</title>
-
-    <link rel="stylesheet" href="css/style.css">
-</head>
-
-<body>
-
-    <header>
-        <nav class="navbar">
-            <div class="contenedor">
-                <h2 class="logo">NEXUS Gaming</h2>
-
-                <div class="menu">
-                    <a href="index.html">Inicio</a>
-                    <a href="productos.html">Productos</a>
-                    <a href="nosotros.html">Nosotros</a>
-                    <a href="blog.html">Blog</a>
-                    <a href="contacto.html">Contacto</a>
-                </div>
-
-                <div class="acciones">
-                    <a href="login.html">Iniciar sesión</a>
-                </div>
-            </div>
-        </nav>
-    </header>
-
-
-    <main>
-
-        <section class="seccion-formulario">
-
-            <div class="contenedor">
-
-                <div class="formulario-contenedor">
-
-                    <h1>Crear cuenta</h1>
-
-                    <p class="formulario-subtitulo">
-                        Regístrate para acceder a NEXUS Gaming.
-                    </p>
-
-                    <form id="formRegistro">
-
-                        <div class="form-group">
-                            <label for="run">RUN</label>
-                            <input
-                                type="text"
-                                id="run"
-                                placeholder="19011022K"
-                                minlength="7"
-                                maxlength="9"
-                            >
-                            <p class="mensaje-error" id="errorRun"></p>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="nombre">Nombre</label>
-                            <input
-                                type="text"
-                                id="nombre"
-                                maxlength="50"
-                            >
-                            <p class="mensaje-error" id="errorNombre"></p>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="apellidos">Apellidos</label>
-                            <input
-                                type="text"
-                                id="apellidos"
-                                maxlength="100"
-                            >
-                            <p class="mensaje-error" id="errorApellidos"></p>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="correo">Correo</label>
-                            <input
-                                type="email"
-                                id="correo"
-                                maxlength="100"
-                            >
-                            <p class="mensaje-error" id="errorCorreo"></p>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="fechaNacimiento">
-                                Fecha de nacimiento
-                            </label>
-
-                            <input
-                                type="date"
-                                id="fechaNacimiento"
-                            >
-                        </div>
-
-                        <div class="form-group">
-                            <label for="region">Región</label>
-
-                            <select id="region">
-                                <option value="">
-                                    Seleccione una región
-                                </option>
-
-                                <option value="metropolitana">
-                                    Región Metropolitana
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="comuna">Comuna</label>
-
-                            <select id="comuna">
-                                <option value="">
-                                    Seleccione una comuna
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="direccion">Dirección</label>
-
-                            <input
-                                type="text"
-                                id="direccion"
-                                maxlength="300"
-                            >
-
-                            <p
-                                class="mensaje-error"
-                                id="errorDireccion">
-                            </p>
-                        </div>
-
-                        <button type="submit" class="btn-formulario">
-                            Registrarse
-                        </button>
-
-                    </form>
-
-                    <p class="formulario-footer">
-                        ¿Ya tienes cuenta?
-                        <a href="login.html">
-                            Inicia sesión
-                        </a>
-                    </p>
-
-                </div>
-
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <script src="js/registro.js"></script>
-
-</body>
-
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   Registro - NEXUS Gaming
+  </title>
+  <link href="css/style.css" rel="stylesheet"/>
+ </head>
+ <body>
+  <header>
+   <nav class="navbar">
+    <div class="contenedor">
+     <h2 class="logo">
+      NEXUS Gaming
+     </h2>
+     <div class="menu">
+      <a href="index.html">
+       Inicio
+      </a>
+      <a href="productos.html">
+       Productos
+      </a>
+      <a href="nosotros.html">
+       Nosotros
+      </a>
+      <a href="blog.html">
+       Blog
+      </a>
+      <a href="contacto.html">
+       Contacto
+      </a>
+     </div>
+     <div class="acciones">
+      <a href="login.html">
+       Iniciar sesión
+      </a>
+     </div>
+    </div>
+   </nav>
+  </header>
+  <main>
+   <section class="seccion-formulario">
+    <div class="contenedor">
+     <div class="formulario-contenedor">
+      <h1>
+       Crear cuenta
+      </h1>
+      <p class="formulario-subtitulo">
+       Regístrate para acceder a NEXUS Gaming.
+      </p>
+      <form id="formRegistro">
+       <div class="form-group">
+        <label for="run">
+         RUN
+        </label>
+        <input id="run" maxlength="9" minlength="7" placeholder="19011022K" type="text"/>
+        <p class="mensaje-error" id="errorRun">
+        </p>
+       </div>
+       <div class="form-group">
+        <label for="nombre">
+         Nombre
+        </label>
+        <input id="nombre" maxlength="50" type="text"/>
+        <p class="mensaje-error" id="errorNombre">
+        </p>
+       </div>
+       <div class="form-group">
+        <label for="apellidos">
+         Apellidos
+        </label>
+        <input id="apellidos" maxlength="100" type="text"/>
+        <p class="mensaje-error" id="errorApellidos">
+        </p>
+       </div>
+       <div class="form-group">
+        <label for="correo">
+         Correo
+        </label>
+        <input id="correo" maxlength="100" type="email"/>
+        <p class="mensaje-error" id="errorCorreo">
+        </p>
+       </div>
+       <div class="form-group">
+        <label for="fechaNacimiento">
+         Fecha de nacimiento
+        </label>
+        <input id="fechaNacimiento" type="date"/>
+       </div>
+       <div class="form-group">
+        <label for="region">
+         Región
+        </label>
+        <select id="region">
+         <option value="">
+          Seleccione una región
+         </option>
+        </select>
+        <p class="mensaje-error" id="errorRegion">
+        </p>
+       </div>
+       <div class="form-group">
+        <label for="comuna">
+         Comuna
+        </label>
+        <select id="comuna">
+         <option value="">
+          Seleccione una comuna
+         </option>
+        </select>
+        <p class="mensaje-error" id="errorComuna">
+        </p>
+       </div>
+       <div class="form-group">
+        <label for="direccion">
+         Dirección
+        </label>
+        <input id="direccion" maxlength="300" type="text"/>
+        <p class="mensaje-error" id="errorDireccion">
+        </p>
+       </div>
+       <button class="btn-formulario" type="submit">
+        Registrarse
+       </button>
+      </form>
+      <p class="formulario-footer">
+       ¿Ya tienes cuenta?
+       <a href="login.html">
+        Inicia sesión
+       </a>
+      </p>
+     </div>
+    </div>
+   </section>
+  </main>
+  <script src="js/registro.js">
+  </script>
+ </body>
 </html>
+
