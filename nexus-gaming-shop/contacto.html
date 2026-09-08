@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   Contacto - NEXUS Gaming
+  </title>
+  <link href="css/style.css" rel="stylesheet"/>
+ </head>
+ <body>
+  <header>
+   <nav class="navbar">
+    <div class="contenedor">
+     <h2 class="logo">
+      NEXUS Gaming
+     </h2>
+     <div class="menu">
+      <a href="index.html">
+       Inicio
+      </a>
+      <a href="productos.html">
+       Productos
+      </a>
+      <a href="nosotros.html">
+       Nosotros
+      </a>
+      <a href="blog.html">
+       Blog
+      </a>
+      <a href="contacto.html">
+       Contacto
+      </a>
+     </div>
+     <div class="acciones">
+      <a href="login.html">
+       Iniciar sesión
+      </a>
+      <a href="registro.html">
+       Registrarse
+      </a>
+     </div>
+    </div>
+   </nav>
+  </header>
+  <main>
+   <section class="seccion-formulario">
+    <div class="contenedor">
+     <div class="formulario-contenedor">
+      <h1>
+       Contacto
+      </h1>
+      <p class="formulario-subtitulo">
+       Envíanos tus consultas o comentarios.
+      </p>
+      <form id="formContacto">
+       <div class="form-group">
+        <label for="nombreContacto">
+         Nombre
+        </label>
+        <input id="nombreContacto" maxlength="100" type="text"/>
+        <p class="mensaje-error" id="errorNombreContacto">
+        </p>
+       </div>
+       <div class="form-group">
+        <label for="correoContacto">
+         Correo
+        </label>
+        <input id="correoContacto" maxlength="100" type="email"/>
+        <p class="mensaje-error" id="errorCorreoContacto">
+        </p>
+       </div>
+       <div class="form-group">
+        <label for="comentario">
+         Comentario
+        </label>
+        <textarea id="comentario" maxlength="500" rows="6"></textarea>
+        <p class="mensaje-error" id="errorComentario">
+        </p>
+       </div>
+       <button class="btn-formulario" type="submit">
+        Enviar mensaje
+       </button>
+      </form>
+     </div>
+    </div>
+   </section>
+  </main>
+  <script src="js/contacto.js">
+  </script>
+ </body>
+</html>
+

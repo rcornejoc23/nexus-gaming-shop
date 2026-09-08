@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   Usuarios - Administración NEXUS Gaming
+  </title>
+  <!--
+        style.css contiene los estilos generales del proyecto.
+        admin.css contiene solamente los estilos del panel administrativo.
+    -->
+  <link href="../css/style.css" rel="stylesheet"/>
+  <link href="../css/admin.css" rel="stylesheet"/>
+ </head>
+ <body>
+  <div class="admin-layout">
+   <!-- ================================
+             MENÚ LATERAL DEL ADMINISTRADOR
+             ================================ -->
+   <aside class="admin-sidebar">
+    <h2 class="admin-logo">
+     NEXUS Gaming
+    </h2>
+    <p class="admin-subtitulo">
+     Administración
+    </p>
+    <nav class="admin-menu">
+     <a href="index.html">
+      Inicio
+     </a>
+     <a href="productos.html">
+      Productos
+     </a>
+     <!--
+                    La clase activo permite mostrar visualmente
+                    en qué sección estamos.
+                -->
+     <a class="activo" href="usuarios.html">
+      Usuarios
+     </a>
+     <a href="../index.html">
+      Volver a la tienda
+     </a>
+    </nav>
+   </aside>
+   <!-- ================================
+             CONTENIDO PRINCIPAL
+             ================================ -->
+   <main class="admin-contenido">
+    <header class="admin-header">
+     <div>
+      <h1>
+       Usuarios
+      </h1>
+      <p>
+       Administración de usuarios registrados
+                        en NEXUS Gaming.
+      </p>
+     </div>
+     <!--
+                    Este botón lleva al formulario
+                    para crear un nuevo usuario.
+                -->
+     <a class="btn-admin" href="usuarios-form.html">
+      + Nuevo usuario
+     </a>
+    </header>
+    <!-- ================================
+                 TABLA DE USUARIOS
+                 ================================ -->
+    <div class="tabla-contenedor">
+     <table class="admin-tabla">
+      <thead>
+       <tr>
+        <th>
+         RUN
+        </th>
+        <th>
+         Nombre
+        </th>
+        <th>
+         Correo
+        </th>
+        <th>
+         Tipo usuario
+        </th>
+        <th>
+         Región
+        </th>
+        <th>
+         Acciones
+        </th>
+       </tr>
+      </thead>
+      <tbody>
+       <!--
+                            Por ahora los datos son estáticos.
+
+                            En futuras evaluaciones podrían venir
+                            desde una base de datos.
+                        -->
+       <tr>
+        <td>
+         190110222
+        </td>
+        <td>
+         Usuario Administrador
+        </td>
+        <td>
+         admin@duoc.cl
+        </td>
+        <td>
+         Administrador
+        </td>
+        <td>
+         Metropolitana
+        </td>
+        <td>
+         <!--
+                                    El mismo formulario puede servir
+                                    visualmente para editar.
+                                -->
+         <a class="btn-editar" href="usuarios-form.html?run=190110222">
+          Editar
+         </a>
+         <button class="btn-eliminar-admin" onclick="confirmarEliminarUsuario()">
+          Eliminar
+         </button>
+        </td>
+       </tr>
+       <tr>
+        <td>
+         201234565
+        </td>
+        <td>
+         Cliente Ejemplo
+        </td>
+        <td>
+         cliente@gmail.com
+        </td>
+        <td>
+         Cliente
+        </td>
+        <td>
+         Metropolitana
+        </td>
+        <td>
+         <a class="btn-editar" href="usuarios-form.html?run=201234565">
+          Editar
+         </a>
+         <button class="btn-eliminar-admin" onclick="confirmarEliminarUsuario()">
+          Eliminar
+         </button>
+        </td>
+       </tr>
+       <tr>
+        <td>
+         183456784
+        </td>
+        <td>
+         Vendedor Ejemplo
+        </td>
+        <td>
+         vendedor@gmail.com
+        </td>
+        <td>
+         Vendedor
+        </td>
+        <td>
+         Valparaíso
+        </td>
+        <td>
+         <a class="btn-editar" href="usuarios-form.html?run=183456784">
+          Editar
+         </a>
+         <button class="btn-eliminar-admin" onclick="confirmarEliminarUsuario()">
+          Eliminar
+         </button>
+        </td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+   </main>
+  </div>
+  <!--
+        JavaScript específico de usuarios administrativos.
+    -->
+  <script src="../js/usuarios-admin.js">
+  </script>
+ </body>
+</html>
+

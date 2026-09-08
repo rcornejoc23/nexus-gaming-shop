@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   Producto - Administración
+  </title>
+  <link href="../css/style.css" rel="stylesheet"/>
+  <link href="../css/admin.css" rel="stylesheet"/>
+ </head>
+ <body>
+  <div class="admin-layout">
+   <aside class="admin-sidebar">
+    <h2 class="admin-logo">
+     NEXUS Gaming
+    </h2>
+    <p class="admin-subtitulo">
+     Administración
+    </p>
+    <nav class="admin-menu">
+     <a class="" href="index.html">
+      Inicio
+     </a>
+     <a class="activo" href="productos.html">
+      Productos
+     </a>
+     <a class="" href="usuarios.html">
+      Usuarios
+     </a>
+     <a href="../index.html">
+      Volver a la tienda
+     </a>
+    </nav>
+   </aside>
+   <main class="admin-contenido">
+    <header class="admin-header">
+     <div>
+      <h1 id="tituloFormularioProducto">
+       Nuevo producto
+      </h1>
+      <p>
+       Completa los datos y valida el formulario.
+      </p>
+     </div>
+    </header>
+    <div class="admin-formulario">
+     <form id="formProducto" novalidate="">
+      <div class="form-group">
+       <label for="codigoProducto">
+        Código producto
+       </label>
+       <input id="codigoProducto" type="text"/>
+       <p class="mensaje-error" id="errorCodigoProducto">
+       </p>
+      </div>
+      <div class="form-group">
+       <label for="nombreProducto">
+        Nombre
+       </label>
+       <input id="nombreProducto" maxlength="100" type="text"/>
+       <p class="mensaje-error" id="errorNombreProducto">
+       </p>
+      </div>
+      <div class="form-group">
+       <label for="descripcionProducto">
+        Descripción
+       </label>
+       <textarea id="descripcionProducto" maxlength="500" rows="4"></textarea>
+       <p class="mensaje-error" id="errorDescripcionProducto">
+       </p>
+      </div>
+      <div class="admin-form-fila">
+       <div class="form-group">
+        <label for="precioProducto">
+         Precio
+        </label>
+        <input id="precioProducto" min="0" step="0.01" type="number"/>
+        <p class="mensaje-error" id="errorPrecioProducto">
+        </p>
+       </div>
+       <div class="form-group">
+        <label for="stockProducto">
+         Stock
+        </label>
+        <input id="stockProducto" min="0" step="1" type="number"/>
+        <p class="mensaje-error" id="errorStockProducto">
+        </p>
+       </div>
+      </div>
+      <div class="form-group">
+       <label for="stockCritico">
+        Stock crítico
+       </label>
+       <input id="stockCritico" min="0" step="1" type="number"/>
+       <p class="mensaje-error" id="errorStockCritico">
+       </p>
+      </div>
+      <div class="form-group">
+       <label for="categoriaProducto">
+        Categoría
+       </label>
+       <select id="categoriaProducto">
+        <option value="">
+         Seleccione una categoría
+        </option>
+        <option>
+         Teclados
+        </option>
+        <option>
+         Mouse
+        </option>
+        <option>
+         Audio
+        </option>
+        <option>
+         Accesorios
+        </option>
+        <option>
+         Controles
+        </option>
+       </select>
+       <p class="mensaje-error" id="errorCategoriaProducto">
+       </p>
+      </div>
+      <div class="form-group">
+       <label for="imagenProducto">
+        Imagen (opcional)
+       </label>
+       <input accept="image/*" id="imagenProducto" type="file"/>
+      </div>
+      <div class="admin-form-acciones">
+       <a class="btn-cancelar" href="productos.html">
+        Cancelar
+       </a>
+       <button class="btn-admin" id="btnGuardarProducto" type="submit">
+        Guardar producto
+       </button>
+      </div>
+     </form>
+    </div>
+   </main>
+  </div>
+  <script src="../js/admin.js">
+  </script>
+ </body>
+</html>
+
