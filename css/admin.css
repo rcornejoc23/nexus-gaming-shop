@@ -36,9 +36,3 @@
  .admin-layout{flex-direction:column;} .admin-sidebar{width:100%;min-height:auto;} .admin-menu{flex-direction:row;flex-wrap:wrap;}
  .admin-header{flex-direction:column;align-items:flex-start;} .dashboard{grid-template-columns:1fr;} .admin-form-fila{flex-direction:column;gap:0;} .admin-form-fila .form-group{width:100%;}
 }
-/* ESTILOS DEL PANEL DE ADMINISTRACIÓN */
-
-/*
-Este archivo será utilizado para los estilos
-específicos de las vistas administrativas.
-*/

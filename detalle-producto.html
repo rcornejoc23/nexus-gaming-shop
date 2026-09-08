@@ -1,126 +1,80 @@
 <!DOCTYPE html>
 <html lang="es">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Detalle Producto - NEXUS Gaming</title>
-
-    <link rel="stylesheet" href="css/style.css">
-</head>
-
-<body>
-
-    <header>
-
-        <nav class="navbar">
-
-            <div class="contenedor">
-
-                <h2 class="logo">
-                    NEXUS Gaming
-                </h2>
-
-                <div class="menu">
-                    <a href="index.html">Inicio</a>
-                    <a href="productos.html">Productos</a>
-                    <a href="nosotros.html">Nosotros</a>
-                    <a href="blog.html">Blog</a>
-                    <a href="contacto.html">Contacto</a>
-                </div>
-
-                <div class="acciones">
-                    <a href="login.html">Iniciar sesión</a>
-                    <a href="#" id="carritoContador">Carrito (0)</a>
-                </div>
-
-            </div>
-
-        </nav>
-
-    </header>
-
-
-    <main>
-
-        <section class="detalle-producto">
-
-            <div class="contenedor">
-
-                <a
-                    href="productos.html"
-                    class="volver-productos"
-                >
-                    ← Volver a productos
-                </a>
-
-
-                <div class="detalle-producto-contenido">
-
-                    <div class="detalle-producto-imagen">
-
-                        Imagen del producto
-
-                    </div>
-
-
-                    <div class="detalle-producto-info">
-
-                        <p class="categoria-producto">
-                            Teclados
-                        </p>
-
-                        <h1>
-                            Teclado Mecánico RGB
-                        </h1>
-
-                        <p class="detalle-precio">
-                            $39.990
-                        </p>
-
-                        <p class="detalle-descripcion">
-                            Teclado mecánico diseñado para jugadores,
-                            con iluminación RGB y estructura resistente.
-                            Ideal para mejorar la comodidad y respuesta
-                            durante largas sesiones de juego.
-                        </p>
-
-
-                        <div class="form-group">
-
-                            <label for="cantidad">
-                                Cantidad
-                            </label>
-
-                            <input
-                                type="number"
-                                id="cantidad"
-                                value="1"
-                                min="1"
-                                max="10"
-                            >
-
-                        </div>
-
-
-                        <button
-                            id="btnAgregarCarrito"
-                            class="btn-formulario"
-                        >
-                            Agregar al carrito
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-    </main>
-
-</body>
-
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   Detalle Producto - NEXUS Gaming
+  </title>
+  <link href="css/style.css" rel="stylesheet"/>
+ </head>
+ <body>
+  <header>
+   <nav class="navbar">
+    <div class="contenedor">
+     <a class="logo" href="index.html">
+      NEXUS Gaming
+     </a>
+     <div class="menu">
+      <a href="index.html">
+       Inicio
+      </a>
+      <a href="productos.html">
+       Productos
+      </a>
+      <a href="nosotros.html">
+       Nosotros
+      </a>
+      <a href="blog.html">
+       Blog
+      </a>
+      <a href="contacto.html">
+       Contacto
+      </a>
+     </div>
+     <div class="acciones">
+      <a href="login.html">
+       Iniciar sesión
+      </a>
+      <a href="registro.html">
+       Registrarse
+      </a>
+      <a href="carrito.html">
+       Carrito (
+       <span id="carritoContador">
+        0
+       </span>
+       )
+      </a>
+     </div>
+    </div>
+   </nav>
+  </header>
+  <main>
+   <section class="detalle-producto">
+    <div class="contenedor">
+     <a class="volver-productos" href="productos.html">
+      ← Volver a productos
+     </a>
+     <div class="detalle-producto-contenido" id="detalleProductoDinamico">
+     </div>
+    </div>
+   </section>
+  </main>
+  <footer>
+   <div class="contenedor">
+    <p>
+     <strong>
+      NEXUS Gaming
+     </strong>
+    </p>
+    <p>
+     Proyecto Desarrollo Fullstack II - Parcial 1
+    </p>
+   </div>
+  </footer>
+  <script src="js/productos.js">
+  </script>
+ </body>
 </html>
+
