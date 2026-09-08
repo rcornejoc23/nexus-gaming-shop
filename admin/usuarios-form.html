@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   Nuevo Usuario - Administración NEXUS Gaming
+  </title>
+  <link href="../css/style.css" rel="stylesheet"/>
+  <link href="../css/admin.css" rel="stylesheet"/>
+ </head>
+ <body>
+  <div class="admin-layout">
+   <!-- MENÚ ADMINISTRATIVO -->
+   <aside class="admin-sidebar">
+    <h2 class="admin-logo">
+     NEXUS Gaming
+    </h2>
+    <p class="admin-subtitulo">
+     Administración
+    </p>
+    <nav class="admin-menu">
+     <a href="index.html">
+      Inicio
+     </a>
+     <a href="productos.html">
+      Productos
+     </a>
+     <a class="activo" href="usuarios.html">
+      Usuarios
+     </a>
+     <a href="../index.html">
+      Volver a la tienda
+     </a>
+    </nav>
+   </aside>
+   <!-- CONTENIDO -->
+   <main class="admin-contenido">
+    <header class="admin-header">
+     <div>
+      <h1>
+       Nuevo usuario
+      </h1>
+      <p>
+       Completa los datos para registrar
+                        un usuario en el sistema.
+      </p>
+     </div>
+    </header>
+    <div class="admin-formulario">
+     <!--
+                    novalidate evita que el navegador muestre
+                    sus propios mensajes automáticos.
+
+                    De esta forma nosotros controlamos
+                    las validaciones con JavaScript.
+                -->
+     <form id="formUsuarioAdmin" novalidate="">
+      <!-- ================================
+                         RUN
+                         ================================ -->
+      <div class="form-group">
+       <label for="runAdmin">
+        RUN
+       </label>
+       <input id="runAdmin" maxlength="9" minlength="7" placeholder="19011022K" type="text"/>
+       <p class="mensaje-error" id="errorRunAdmin">
+       </p>
+      </div>
+      <!-- ================================
+                         NOMBRE
+                         ================================ -->
+      <div class="form-group">
+       <label for="nombreAdmin">
+        Nombre
+       </label>
+       <input id="nombreAdmin" maxlength="50" type="text"/>
+       <p class="mensaje-error" id="errorNombreAdmin">
+       </p>
+      </div>
+      <!-- ================================
+                         APELLIDOS
+                         ================================ -->
+      <div class="form-group">
+       <label for="apellidosAdmin">
+        Apellidos
+       </label>
+       <input id="apellidosAdmin" maxlength="100" type="text"/>
+       <p class="mensaje-error" id="errorApellidosAdmin">
+       </p>
+      </div>
+      <!-- ================================
+                         CORREO
+                         ================================ -->
+      <div class="form-group">
+       <label for="correoAdmin">
+        Correo
+       </label>
+       <input id="correoAdmin" maxlength="100" type="email"/>
+       <p class="mensaje-error" id="errorCorreoAdmin">
+       </p>
+      </div>
+      <!-- ================================
+                         FECHA DE NACIMIENTO
+                         Es opcional según la pauta.
+                         ================================ -->
+      <div class="form-group">
+       <label for="fechaNacimientoAdmin">
+        Fecha de nacimiento
+       </label>
+       <input id="fechaNacimientoAdmin" type="date"/>
+      </div>
+      <!-- ================================
+                         TIPO DE USUARIO
+                         Solo corresponde al administrador.
+                         ================================ -->
+      <div class="form-group">
+       <label for="tipoUsuario">
+        Tipo de usuario
+       </label>
+       <select id="tipoUsuario">
+        <option value="">
+         Seleccione un tipo
+        </option>
+        <option value="Administrador">
+         Administrador
+        </option>
+        <option value="Cliente">
+         Cliente
+        </option>
+        <option value="Vendedor">
+         Vendedor
+        </option>
+       </select>
+       <p class="mensaje-error" id="errorTipoUsuario">
+       </p>
+      </div>
+      <!-- ================================
+                         REGIÓN
+                         Las opciones se crearán usando JS.
+                         ================================ -->
+      <div class="form-group">
+       <label for="regionAdmin">
+        Región
+       </label>
+       <select id="regionAdmin">
+        <option value="">
+         Seleccione una región
+        </option>
+       </select>
+       <p class="mensaje-error" id="errorRegionAdmin">
+       </p>
+      </div>
+      <!-- ================================
+                         COMUNA
+                         Cambia dependiendo de la región.
+                         ================================ -->
+      <div class="form-group">
+       <label for="comunaAdmin">
+        Comuna
+       </label>
+       <select id="comunaAdmin">
+        <option value="">
+         Seleccione una comuna
+        </option>
+       </select>
+       <p class="mensaje-error" id="errorComunaAdmin">
+       </p>
+      </div>
+      <!-- ================================
+                         DIRECCIÓN
+                         ================================ -->
+      <div class="form-group">
+       <label for="direccionAdmin">
+        Dirección
+       </label>
+       <input id="direccionAdmin" maxlength="300" type="text"/>
+       <p class="mensaje-error" id="errorDireccionAdmin">
+       </p>
+      </div>
+      <!-- BOTONES -->
+      <div class="admin-form-acciones">
+       <a class="btn-cancelar" href="usuarios.html">
+        Cancelar
+       </a>
+       <button class="btn-admin" type="submit">
+        Guardar usuario
+       </button>
+      </div>
+     </form>
+    </div>
+   </main>
+  </div>
+  <script src="../js/usuarios-admin.js">
+  </script>
+ </body>
+</html>
+
