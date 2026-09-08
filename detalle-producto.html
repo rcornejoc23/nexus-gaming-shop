@@ -32,7 +32,10 @@
 
                 <div class="acciones">
                     <a href="login.html">Iniciar sesión</a>
-                    <a href="#" id="carritoContador">Carrito (0)</a>
+
+                    <a href="carrito.html">
+                        Carrito (<span id="carritoContador">0</span>)
+                    </a>
                 </div>
 
             </div>
@@ -58,30 +61,45 @@
 
                 <div class="detalle-producto-contenido">
 
+                    <!-- IMAGEN DEL PRODUCTO -->
+
                     <div class="detalle-producto-imagen">
-                        <img src="img/teclado.jpg" alt="Teclado Mecánico RGB">
+
+                        <img
+                            id="detalleImagen"
+                            src=""
+                            alt=""
+                        >
+
                     </div>
 
 
+                    <!-- INFORMACIÓN DEL PRODUCTO -->
+
                     <div class="detalle-producto-info">
 
-                        <p class="categoria-producto">
-                            Teclados
+                        <p
+                            class="categoria-producto"
+                            id="detalleCategoria"
+                        >
                         </p>
 
-                        <h1>
-                            Teclado Mecánico RGB
+
+                        <h1 id="detalleNombre">
                         </h1>
 
-                        <p class="detalle-precio">
-                            $39.990
+
+                        <p
+                            class="detalle-precio"
+                            id="detallePrecio"
+                        >
                         </p>
 
-                        <p class="detalle-descripcion">
-                            Teclado mecánico diseñado para jugadores,
-                            con iluminación RGB y estructura resistente.
-                            Ideal para mejorar la comodidad y respuesta
-                            durante largas sesiones de juego.
+
+                        <p
+                            class="detalle-descripcion"
+                            id="detalleDescripcion"
+                        >
                         </p>
 
 
@@ -118,6 +136,11 @@
         </section>
 
     </main>
+
+
+    <!-- JS DEL DETALLE -->
+
+    <script src="js/detalle-producto.js"></script>
 
 </body>
 
