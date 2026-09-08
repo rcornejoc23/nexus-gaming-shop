@@ -20,7 +20,7 @@ let productos = [
         nombre: "Headset Gaming 7.1",
         precio: 49990,
         categoria: "Audio",
-        imagen: "img/headset.jpg"
+        imagen: "img/audifonos.jpg"
     },
     {
         id: 4,
