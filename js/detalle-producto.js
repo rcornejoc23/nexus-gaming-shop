@@ -10,25 +10,56 @@
         return;
     }
 
-    document.getElementById("detalleImagen").src = producto.imagen;
-    document.getElementById("detalleImagen").alt = producto.nombre;
-    document.getElementById("detalleCategoria").textContent = producto.categoria;
-    document.getElementById("detalleNombre").textContent = producto.nombre;
-    document.getElementById("detallePrecio").textContent = "$" + producto.precio.toLocaleString("es-CL");
-    document.getElementById("detalleDescripcion").textContent = producto.descripcion;
-
     const cantidad = document.getElementById("cantidad");
     const botonAgregar = document.getElementById("btnAgregarCarrito");
-    cantidad.max = String(Math.min(10, Math.max(1, producto.stock)));
-    botonAgregar.disabled = producto.stock <= 0;
+
+    function actualizarVista(productoActualizado) {
+        document.getElementById("detalleImagen").src = productoActualizado.imagen;
+        document.getElementById("detalleImagen").alt = productoActualizado.nombre;
+        document.getElementById("detalleCategoria").textContent = productoActualizado.categoria;
+        document.getElementById("detalleNombre").textContent = productoActualizado.nombre;
+        document.getElementById("detallePrecio").textContent = "$" + productoActualizado.precio.toLocaleString("es-CL");
+
+        const stock = Number(productoActualizado.stock) || 0;
+        const stockElemento = document.getElementById("detalleStock");
+        stockElemento.textContent = stock > 0
+            ? "Stock disponible: " + stock + (stock === 1 ? " unidad" : " unidades")
+            : "Sin stock disponible";
+        stockElemento.classList.toggle("sin-stock", stock <= 0);
+
+        document.getElementById("detalleDescripcion").textContent = productoActualizado.descripcion;
+        cantidad.max = String(Math.min(10, Math.max(1, stock)));
+        cantidad.value = String(Math.min(Math.max(1, Number(cantidad.value) || 1), Math.max(1, stock)));
+        cantidad.disabled = stock <= 0;
+        botonAgregar.disabled = stock <= 0;
+    }
+
+    actualizarVista(producto);
 
     botonAgregar.addEventListener("click", function () {
+        const productoActualizado = window.NexusCatalogo.obtenerProductoPorId(idProducto);
+        if (!productoActualizado || productoActualizado.stock <= 0) {
+            actualizarVista(productoActualizado || producto);
+            return;
+        }
+
         const cantidadSolicitada = Math.min(
             Math.max(1, Number.parseInt(cantidad.value, 10) || 1),
             Number(cantidad.max)
         );
 
-        window.NexusCarrito.agregar(producto, cantidadSolicitada);
-        alert(producto.nombre + " fue añadido al carrito");
+        window.NexusCarrito.agregar(productoActualizado, cantidadSolicitada);
+        alert(productoActualizado.nombre + " fue añadido al carrito");
+    });
+
+    window.addEventListener("storage", function (evento) {
+        if (evento.key !== "productosAdmin") {
+            return;
+        }
+
+        const productoActualizado = window.NexusCatalogo.obtenerProductoPorId(idProducto);
+        if (productoActualizado) {
+            actualizarVista(productoActualizado);
+        }
     });
 })();

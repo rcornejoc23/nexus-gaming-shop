@@ -708,6 +708,18 @@ footer .contenedor {
     margin-bottom: 20px;
 }
 
+.detalle-stock {
+    color: #15803d;
+
+    font-weight: bold;
+
+    margin-bottom: 20px;
+}
+
+.detalle-stock.sin-stock {
+    color: #b91c1c;
+}
+
 .detalle-descripcion {
     color: #555;
 
