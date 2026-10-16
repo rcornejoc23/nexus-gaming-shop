@@ -33,8 +33,12 @@
                 return;
             }
 
-            window.NexusCarrito.agregar(productoActualizado, 1);
-            alert(productoActualizado.nombre + " fue añadido al carrito");
+            const resultado = window.NexusCarrito.agregar(productoActualizado, 1);
+            if (resultado.excedido) {
+                alert("No hay más stock disponible para " + productoActualizado.nombre + ".");
+            } else if (resultado.ok) {
+                alert(productoActualizado.nombre + " fue añadido al carrito");
+            }
         });
 
         tarjeta.append(imagen, nombre, precio, boton);

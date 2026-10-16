@@ -3,6 +3,11 @@
 
     const listaCarrito = document.getElementById("listaCarrito");
     const totalCarrito = document.getElementById("totalCarrito");
+    const mensajeCarrito = document.getElementById("mensajeCarrito");
+
+    function mostrarMensaje(texto) {
+        mensajeCarrito.textContent = texto;
+    }
 
     function mostrarCarrito() {
         listaCarrito.replaceChildren();
@@ -21,6 +26,7 @@
 
         items.forEach(function (item) {
             const producto = item.producto;
+            const stock = Math.max(0, Math.floor(Number(producto.stock) || 0));
             total += producto.precio * item.cantidad;
 
             const tarjeta = document.createElement("article");
@@ -40,13 +46,21 @@
 
             const cantidad = document.createElement("input");
             cantidad.type = "number";
-            cantidad.min = "1";
-            cantidad.max = String(Math.max(1, Number(producto.stock) || 10));
+            cantidad.min = stock > 0 ? "1" : "0";
+            cantidad.max = String(stock);
             cantidad.value = String(item.cantidad);
+            cantidad.disabled = stock <= 0;
             cantidad.className = "carrito-cantidad";
             cantidad.setAttribute("aria-label", "Cantidad de " + producto.nombre);
             cantidad.addEventListener("change", function () {
-                window.NexusCarrito.actualizarCantidad(producto.id, cantidad.value);
+                const resultado = window.NexusCarrito.actualizarCantidad(producto.id, cantidad.value);
+                if (resultado.excedido) {
+                    mostrarMensaje("La cantidad solicitada supera el stock disponible. Se ajustó a " + resultado.stock + " unidad(es).");
+                } else if (resultado.stock <= 0) {
+                    mostrarMensaje("" + producto.nombre + " no tiene stock disponible.");
+                } else {
+                    mostrarMensaje("");
+                }
                 mostrarCarrito();
             });
 
@@ -68,4 +82,10 @@
     }
 
     mostrarCarrito();
+
+    window.addEventListener("storage", function (evento) {
+        if (evento.key === "productosAdmin") {
+            mostrarCarrito();
+        }
+    });
 })();

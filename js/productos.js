@@ -39,8 +39,12 @@
         boton.textContent = producto.stock > 0 ? "Añadir" : "Sin stock";
         boton.disabled = producto.stock <= 0;
         boton.addEventListener("click", function () {
-            window.NexusCarrito.agregar(producto, 1);
-            alert(producto.nombre + " fue añadido al carrito");
+            const resultado = window.NexusCarrito.agregar(producto, 1);
+            if (resultado.excedido) {
+                alert("No hay más stock disponible para " + producto.nombre + ".");
+            } else if (resultado.ok) {
+                alert(producto.nombre + " fue añadido al carrito");
+            }
         });
 
         tarjeta.append(imagen, nombre, categoria, precio, detalle, boton);

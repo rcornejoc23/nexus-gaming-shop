@@ -3,6 +3,19 @@
 
     const STORAGE_KEY = "carrito";
 
+    function obtenerProductoActual(producto) {
+        if (window.NexusCatalogo) {
+            return window.NexusCatalogo.obtenerProductoPorId(producto.id) || producto;
+        }
+
+        return producto;
+    }
+
+    function obtenerStock(producto) {
+        const stock = Number(producto.stock);
+        return Number.isFinite(stock) ? Math.max(0, Math.floor(stock)) : 0;
+    }
+
     function leerCarrito() {
         try {
             const guardado = JSON.parse(localStorage.getItem(STORAGE_KEY));
@@ -30,7 +43,15 @@
                 }
             });
 
-            return Array.from(agrupado.values());
+            return Array.from(agrupado.values()).map(function (item) {
+                const productoActual = obtenerProductoActual(item.producto);
+                const stock = obtenerStock(productoActual);
+
+                return {
+                    producto: Object.assign({}, productoActual),
+                    cantidad: stock > 0 ? Math.min(item.cantidad, stock) : 0
+                };
+            });
         } catch (error) {
             console.warn("No se pudo leer el carrito.", error);
             return [];
@@ -60,23 +81,37 @@
         obtenerCantidad: obtenerCantidad,
         agregar: function (producto, cantidad) {
             const cantidadSolicitada = Math.max(1, Math.floor(Number(cantidad) || 1));
-            const stockDisponible = Number(producto.stock);
-            const limite = Number.isFinite(stockDisponible) && stockDisponible > 0 ? stockDisponible : cantidadSolicitada;
+            const productoActual = obtenerProductoActual(producto);
+            const stockDisponible = obtenerStock(productoActual);
             const items = leerCarrito();
             const existente = items.find(function (item) {
-                return item.producto.id === Number(producto.id);
+                return item.producto.id === Number(productoActual.id);
             });
+            const cantidadAnterior = existente ? existente.cantidad : 0;
+            const cantidadNueva = Math.min(cantidadAnterior + cantidadSolicitada, stockDisponible);
+            const cantidadAgregada = Math.max(0, cantidadNueva - cantidadAnterior);
 
-            if (existente) {
-                existente.cantidad = Math.min(existente.cantidad + cantidadSolicitada, limite);
-            } else {
+            if (existente && cantidadAgregada > 0) {
+                existente.producto = Object.assign({}, productoActual);
+                existente.cantidad = cantidadNueva;
+            } else if (!existente && cantidadAgregada > 0) {
                 items.push({
-                    producto: Object.assign({}, producto),
-                    cantidad: Math.min(cantidadSolicitada, limite)
+                    producto: Object.assign({}, productoActual),
+                    cantidad: cantidadNueva
                 });
             }
 
-            guardarCarrito(items);
+            if (cantidadAgregada > 0) {
+                guardarCarrito(items);
+            }
+
+            return {
+                ok: cantidadAgregada > 0,
+                excedido: cantidadAgregada < cantidadSolicitada,
+                cantidadAgregada: cantidadAgregada,
+                cantidadTotal: cantidadNueva,
+                stock: stockDisponible
+            };
         },
         eliminar: function (id) {
             guardarCarrito(leerCarrito().filter(function (item) {
@@ -84,18 +119,29 @@
             }));
         },
         actualizarCantidad: function (id, cantidad) {
-            const nuevaCantidad = Math.max(1, Math.floor(Number(cantidad) || 1));
+            const nuevaCantidad = Math.max(0, Math.floor(Number(cantidad) || 0));
             const items = leerCarrito();
             const item = items.find(function (elemento) {
                 return elemento.producto.id === Number(id);
             });
 
-            if (item) {
-                const stock = Number(item.producto.stock);
-                const limite = Number.isFinite(stock) && stock > 0 ? stock : nuevaCantidad;
-                item.cantidad = Math.min(nuevaCantidad, limite);
-                guardarCarrito(items);
+            if (!item) {
+                return { ok: false, excedido: false, cantidad: 0, stock: 0 };
             }
+
+            const productoActual = obtenerProductoActual(item.producto);
+            const stock = obtenerStock(productoActual);
+            const cantidadValidada = Math.min(nuevaCantidad, stock);
+            item.producto = Object.assign({}, productoActual);
+            item.cantidad = cantidadValidada;
+            guardarCarrito(items);
+
+            return {
+                ok: true,
+                excedido: nuevaCantidad > stock,
+                cantidad: cantidadValidada,
+                stock: stock
+            };
         }
     };
 
