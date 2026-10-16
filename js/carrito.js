@@ -53,11 +53,30 @@
             cantidad.className = "carrito-cantidad";
             cantidad.setAttribute("aria-label", "Cantidad de " + producto.nombre);
             cantidad.addEventListener("change", function () {
-                const resultado = window.NexusCarrito.actualizarCantidad(producto.id, cantidad.value);
+                const cantidadSolicitada = Math.max(0, Math.floor(Number(cantidad.value) || 0));
+                let cantidadParaGuardar = cantidadSolicitada;
+
+                if (cantidadSolicitada > stock) {
+                    const deseaAjustar = window.confirm(
+                        "Solicitaste " + cantidadSolicitada + " unidad(es), pero solo hay " +
+                        stock + ". ¿Deseas ajustar la cantidad a las unidades disponibles?"
+                    );
+                    if (!deseaAjustar) {
+                        mostrarMensaje("No se modificó la cantidad del producto.");
+                        mostrarCarrito();
+                        return;
+                    }
+
+                    cantidadParaGuardar = stock;
+                }
+
+                const resultado = window.NexusCarrito.actualizarCantidad(producto.id, cantidadParaGuardar);
                 if (resultado.excedido) {
                     mostrarMensaje("La cantidad solicitada supera el stock disponible. Se ajustó a " + resultado.stock + " unidad(es).");
                 } else if (resultado.stock <= 0) {
                     mostrarMensaje("" + producto.nombre + " no tiene stock disponible.");
+                } else if (cantidadParaGuardar < cantidadSolicitada) {
+                    mostrarMensaje("La cantidad se ajustó a " + cantidadParaGuardar + " unidad(es) disponibles.");
                 } else {
                     mostrarMensaje("");
                 }

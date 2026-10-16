@@ -50,7 +50,32 @@
         }
 
         const cantidadSolicitada = Math.max(1, Number.parseInt(cantidad.value, 10) || 1);
-        const resultado = window.NexusCarrito.agregar(productoActualizado, cantidadSolicitada);
+        const itemCarrito = window.NexusCarrito.obtenerItems().find(function (item) {
+            return item.producto.id === Number(productoActualizado.id);
+        });
+        const cantidadEnCarrito = itemCarrito ? itemCarrito.cantidad : 0;
+        const stockDisponibleParaAgregar = Math.max(0, Number(productoActualizado.stock) - cantidadEnCarrito);
+        let cantidadParaAgregar = cantidadSolicitada;
+
+        if (cantidadSolicitada > stockDisponibleParaAgregar) {
+            if (stockDisponibleParaAgregar <= 0) {
+                mostrarMensaje("El carrito ya contiene todo el stock disponible de este producto.");
+                return;
+            }
+
+            const deseaAgregarDisponible = window.confirm(
+                "Solicitaste " + cantidadSolicitada + " unidad(es), pero solo quedan " +
+                stockDisponibleParaAgregar + ". ¿Deseas agregar las unidades disponibles?"
+            );
+            if (!deseaAgregarDisponible) {
+                mostrarMensaje("No se agregaron unidades.");
+                return;
+            }
+
+            cantidadParaAgregar = stockDisponibleParaAgregar;
+        }
+
+        const resultado = window.NexusCarrito.agregar(productoActualizado, cantidadParaAgregar);
 
         if (resultado.excedido) {
             mostrarMensaje(resultado.cantidadAgregada > 0
@@ -61,7 +86,9 @@
         }
 
         mostrarMensaje("");
-        alert(productoActualizado.nombre + " fue añadido al carrito");
+        alert(cantidadParaAgregar < cantidadSolicitada
+            ? "Se agregaron " + cantidadParaAgregar + " unidad(es) disponibles de " + productoActualizado.nombre + "."
+            : productoActualizado.nombre + " fue añadido al carrito");
     });
 
     window.addEventListener("storage", function (evento) {
