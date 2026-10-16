@@ -74,11 +74,15 @@
 
     function copiarProductos(productos) {
         return productos.map(function (producto, indice) {
+            const precio = Number(producto.precio);
+            const stock = Number(producto.stock);
+            const stockCritico = Number(producto.stockCritico);
+
             return Object.assign({}, producto, {
                 id: Number(producto.id) || indice + 1,
-                precio: Number(producto.precio) || 0,
-                stock: Number.isFinite(Number(producto.stock)) ? Number(producto.stock) : 0,
-                stockCritico: Number.isFinite(Number(producto.stockCritico)) ? Number(producto.stockCritico) : 0,
+                precio: Number.isFinite(precio) ? Math.max(0, precio) : 0,
+                stock: Number.isFinite(stock) ? Math.max(0, Math.floor(stock)) : 0,
+                stockCritico: Number.isFinite(stockCritico) ? Math.max(0, Math.floor(stockCritico)) : 0,
                 imagen: producto.imagen || productosBase[indice % productosBase.length].imagen
             });
         });

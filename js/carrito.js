@@ -4,6 +4,7 @@
     const listaCarrito = document.getElementById("listaCarrito");
     const totalCarrito = document.getElementById("totalCarrito");
     const mensajeCarrito = document.getElementById("mensajeCarrito");
+    const botonFinalizarCompra = document.getElementById("btnFinalizarCompra");
 
     function mostrarMensaje(texto) {
         mensajeCarrito.textContent = texto;
@@ -19,8 +20,11 @@
             vacio.textContent = "Tu carrito está vacío.";
             listaCarrito.appendChild(vacio);
             totalCarrito.textContent = "$0";
+            botonFinalizarCompra.disabled = true;
             return;
         }
+
+        botonFinalizarCompra.disabled = false;
 
         let total = 0;
 
@@ -53,7 +57,14 @@
             cantidad.className = "carrito-cantidad";
             cantidad.setAttribute("aria-label", "Cantidad de " + producto.nombre);
             cantidad.addEventListener("change", function () {
-                const cantidadSolicitada = Math.max(0, Math.floor(Number(cantidad.value) || 0));
+                const cantidadNumerica = Number(cantidad.value);
+                if (!Number.isFinite(cantidadNumerica) || cantidadNumerica < 0) {
+                    mostrarMensaje("No se aceptan cantidades negativas.");
+                    mostrarCarrito();
+                    return;
+                }
+
+                const cantidadSolicitada = Math.max(0, Math.floor(cantidadNumerica));
                 let cantidadParaGuardar = cantidadSolicitada;
 
                 if (cantidadSolicitada > stock) {
@@ -99,6 +110,19 @@
 
         totalCarrito.textContent = "$" + total.toLocaleString("es-CL");
     }
+
+    botonFinalizarCompra.addEventListener("click", function () {
+        const resultado = window.NexusCarrito.finalizarCompra();
+        if (!resultado.ok) {
+            mostrarMensaje(resultado.mensaje);
+            mostrarCarrito();
+            return;
+        }
+
+        alert("Compra finalizada correctamente. El stock fue actualizado.");
+        mostrarMensaje("");
+        mostrarCarrito();
+    });
 
     mostrarCarrito();
 

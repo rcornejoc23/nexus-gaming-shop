@@ -80,7 +80,12 @@
         obtenerItems: leerCarrito,
         obtenerCantidad: obtenerCantidad,
         agregar: function (producto, cantidad) {
-            const cantidadSolicitada = Math.max(1, Math.floor(Number(cantidad) || 1));
+            const cantidadNumerica = Number(cantidad);
+            if (!Number.isFinite(cantidadNumerica) || cantidadNumerica < 0) {
+                return { ok: false, invalida: true, excedido: false, cantidadAgregada: 0, cantidadTotal: 0, stock: 0 };
+            }
+
+            const cantidadSolicitada = Math.max(1, Math.floor(cantidadNumerica));
             const productoActual = obtenerProductoActual(producto);
             const stockDisponible = obtenerStock(productoActual);
             const items = leerCarrito();
@@ -119,7 +124,12 @@
             }));
         },
         actualizarCantidad: function (id, cantidad) {
-            const nuevaCantidad = Math.max(0, Math.floor(Number(cantidad) || 0));
+            const cantidadNumerica = Number(cantidad);
+            if (!Number.isFinite(cantidadNumerica) || cantidadNumerica < 0) {
+                return { ok: false, invalida: true, excedido: false, cantidad: 0, stock: 0 };
+            }
+
+            const nuevaCantidad = Math.max(0, Math.floor(cantidadNumerica));
             const items = leerCarrito();
             const item = items.find(function (elemento) {
                 return elemento.producto.id === Number(id);
@@ -142,6 +152,54 @@
                 cantidad: cantidadValidada,
                 stock: stock
             };
+        },
+        finalizarCompra: function () {
+            const items = leerCarrito().filter(function (item) {
+                return item.cantidad > 0;
+            });
+
+            if (items.length === 0) {
+                return { ok: false, mensaje: "El carrito está vacío." };
+            }
+
+            if (!window.NexusCatalogo) {
+                return { ok: false, mensaje: "No se pudo acceder al catálogo de productos." };
+            }
+
+            const productos = window.NexusCatalogo.obtenerProductos();
+            const productosCompra = productos.map(function (producto) {
+                return Object.assign({}, producto);
+            });
+            let total = 0;
+
+            for (const item of items) {
+                const producto = productosCompra.find(function (elemento) {
+                    return elemento.id === Number(item.producto.id);
+                });
+                const cantidad = Math.floor(Number(item.cantidad));
+
+                if (!producto) {
+                    return { ok: false, mensaje: "Uno de los productos del carrito ya no está disponible." };
+                }
+                if (!Number.isInteger(cantidad) || cantidad <= 0) {
+                    return { ok: false, mensaje: "La cantidad de un producto no es válida." };
+                }
+                if (producto.stock < cantidad) {
+                    return {
+                        ok: false,
+                        mensaje: "El stock de " + producto.nombre + " cambió. Revisa el carrito antes de continuar."
+                    };
+                }
+
+                producto.stock -= cantidad;
+                total += producto.precio * cantidad;
+            }
+
+            window.NexusCatalogo.guardarProductos(productosCompra);
+            localStorage.removeItem(STORAGE_KEY);
+            actualizarContadores();
+
+            return { ok: true, total: total };
         }
     };
 

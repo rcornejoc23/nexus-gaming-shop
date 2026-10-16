@@ -49,7 +49,14 @@
             return;
         }
 
-        const cantidadSolicitada = Math.max(1, Number.parseInt(cantidad.value, 10) || 1);
+        const cantidadNumerica = Number(cantidad.value);
+        if (!Number.isInteger(cantidadNumerica) || cantidadNumerica < 1) {
+            mostrarMensaje("La cantidad debe ser un número entero mayor que cero.");
+            cantidad.value = "1";
+            return;
+        }
+
+        const cantidadSolicitada = cantidadNumerica;
         const itemCarrito = window.NexusCarrito.obtenerItems().find(function (item) {
             return item.producto.id === Number(productoActualizado.id);
         });

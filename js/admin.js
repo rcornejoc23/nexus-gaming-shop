@@ -235,4 +235,14 @@
     configurarFormularioProducto();
     cargarTablaProductos();
     cargarDashboard();
+
+    window.addEventListener("storage", function (evento) {
+        if (evento.key !== "productosAdmin") {
+            return;
+        }
+
+        productos = window.NexusCatalogo.obtenerProductos();
+        cargarTablaProductos();
+        cargarDashboard();
+    });
 })();
