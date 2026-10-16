@@ -6,13 +6,13 @@ formContacto.addEventListener("submit", function(evento) {
 
 
     let nombre =
-        document.getElementById("nombreContacto").value;
+        document.getElementById("nombreContacto").value.trim();
 
     let correo =
-        document.getElementById("correoContacto").value;
+        document.getElementById("correoContacto").value.trim();
 
     let comentario =
-        document.getElementById("comentario").value;
+        document.getElementById("comentario").value.trim();
 
 
     let errorNombre =
@@ -30,23 +30,23 @@ formContacto.addEventListener("submit", function(evento) {
 
     // LIMPIAR ERRORES
 
-    errorNombre.innerHTML = "";
-    errorCorreo.innerHTML = "";
-    errorComentario.innerHTML = "";
+    errorNombre.textContent = "";
+    errorCorreo.textContent = "";
+    errorComentario.textContent = "";
 
 
     // NOMBRE
 
     if (nombre == "") {
 
-        errorNombre.innerHTML =
+        errorNombre.textContent =
             "El nombre es obligatorio.";
 
         formularioValido = false;
 
     } else if (nombre.length > 100) {
 
-        errorNombre.innerHTML =
+            errorNombre.textContent =
             "El nombre no puede superar los 100 caracteres.";
 
         formularioValido = false;
@@ -59,7 +59,7 @@ formContacto.addEventListener("submit", function(evento) {
 
         if (correo.length > 100) {
 
-            errorCorreo.innerHTML =
+            errorCorreo.textContent =
                 "El correo no puede superar los 100 caracteres.";
 
             formularioValido = false;
@@ -70,7 +70,7 @@ formContacto.addEventListener("submit", function(evento) {
             !correo.endsWith("@gmail.com")
         ) {
 
-            errorCorreo.innerHTML =
+            errorCorreo.textContent =
                 "El dominio del correo no está permitido.";
 
             formularioValido = false;
@@ -83,14 +83,14 @@ formContacto.addEventListener("submit", function(evento) {
 
     if (comentario == "") {
 
-        errorComentario.innerHTML =
+        errorComentario.textContent =
             "El comentario es obligatorio.";
 
         formularioValido = false;
 
     } else if (comentario.length > 500) {
 
-        errorComentario.innerHTML =
+        errorComentario.textContent =
             "El comentario no puede superar los 500 caracteres.";
 
         formularioValido = false;

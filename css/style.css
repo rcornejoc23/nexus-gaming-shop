@@ -1,6 +1,6 @@
-CONFIGURACIÓN GENERAL
+/* CONFIGURACIÓN GENERAL */
 
- {
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -378,6 +378,12 @@ footer .contenedor {
 
 .btn-formulario:hover {
     background-color: #6d28d9;
+}
+
+.btn-formulario:disabled,
+.btn-agregar:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
 }
 
 

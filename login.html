@@ -55,6 +55,10 @@
                         Ingresa a tu cuenta de NEXUS Gaming.
                     </p>
 
+                    <p class="formulario-ayuda">
+                        Demo administrador: admin@duoc.cl / Admin123
+                    </p>
+
                     <form id="formLogin">
 
                         <div class="form-group">
@@ -67,6 +71,7 @@
                                 type="email"
                                 id="correoLogin"
                                 maxlength="100"
+                                autocomplete="username"
                             >
 
                             <p
@@ -87,7 +92,8 @@
                                 type="password"
                                 id="password"
                                 minlength="4"
-                                maxlength="10"
+                                maxlength="20"
+                                autocomplete="current-password"
                             >
 
                             <p
@@ -127,7 +133,15 @@
 
     </main>
 
+    <footer>
+        <div class="contenedor">
+            <p>NEXUS Gaming</p>
+            <p>Acceso seguro para clientes y administración.</p>
+        </div>
+    </footer>
 
+
+    <script src="js/usuarios.js"></script>
     <script src="js/login.js"></script>
 
 </body>

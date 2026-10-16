@@ -1,114 +1,71 @@
-// OBTENER CARRITO GUARDADO
+(function () {
+    "use strict";
 
-let carrito = JSON.parse(localStorage.getItem("carrito"));
+    const listaCarrito = document.getElementById("listaCarrito");
+    const totalCarrito = document.getElementById("totalCarrito");
 
+    function mostrarCarrito() {
+        listaCarrito.replaceChildren();
+        const items = window.NexusCarrito.obtenerItems();
 
-// SI EL CARRITO NO EXISTE
+        if (items.length === 0) {
+            const vacio = document.createElement("p");
+            vacio.className = "carrito-vacio";
+            vacio.textContent = "Tu carrito está vacío.";
+            listaCarrito.appendChild(vacio);
+            totalCarrito.textContent = "$0";
+            return;
+        }
 
-if (carrito == null) {
-    carrito = [];
-}
+        let total = 0;
 
+        items.forEach(function (item) {
+            const producto = item.producto;
+            total += producto.precio * item.cantidad;
 
-// ELEMENTOS HTML
+            const tarjeta = document.createElement("article");
+            tarjeta.className = "carrito-producto";
 
-let listaCarrito = document.getElementById("listaCarrito");
+            const informacion = document.createElement("div");
+            const nombre = document.createElement("h3");
+            nombre.textContent = producto.nombre;
+            const categoria = document.createElement("p");
+            categoria.textContent = producto.categoria;
+            informacion.append(nombre, categoria);
 
-let totalCarrito = document.getElementById("totalCarrito");
+            const acciones = document.createElement("div");
+            const precio = document.createElement("p");
+            precio.className = "carrito-precio";
+            precio.textContent = "$" + (producto.precio * item.cantidad).toLocaleString("es-CL");
 
-let carritoContador = document.getElementById("carritoContador");
+            const cantidad = document.createElement("input");
+            cantidad.type = "number";
+            cantidad.min = "1";
+            cantidad.max = String(Math.max(1, Number(producto.stock) || 10));
+            cantidad.value = String(item.cantidad);
+            cantidad.className = "carrito-cantidad";
+            cantidad.setAttribute("aria-label", "Cantidad de " + producto.nombre);
+            cantidad.addEventListener("change", function () {
+                window.NexusCarrito.actualizarCantidad(producto.id, cantidad.value);
+                mostrarCarrito();
+            });
 
+            const eliminar = document.createElement("button");
+            eliminar.type = "button";
+            eliminar.className = "btn-eliminar";
+            eliminar.textContent = "Eliminar";
+            eliminar.addEventListener("click", function () {
+                window.NexusCarrito.eliminar(producto.id);
+                mostrarCarrito();
+            });
 
-// MOSTRAR CARRITO
+            acciones.append(precio, cantidad, eliminar);
+            tarjeta.append(informacion, acciones);
+            listaCarrito.appendChild(tarjeta);
+        });
 
-function mostrarCarrito() {
-
-    listaCarrito.innerHTML = "";
-
-    let total = 0;
-
-
-    if (carrito.length == 0) {
-
-        listaCarrito.innerHTML = `
-            <p class="carrito-vacio">
-                Tu carrito está vacío.
-            </p>
-        `;
-
+        totalCarrito.textContent = "$" + total.toLocaleString("es-CL");
     }
-
-
-    for (let i = 0; i < carrito.length; i++) {
-
-        listaCarrito.innerHTML += `
-            <div class="carrito-producto">
-
-                <div>
-
-                    <h3>
-                        ${carrito[i].nombre}
-                    </h3>
-
-                    <p>
-                        ${carrito[i].categoria}
-                    </p>
-
-                </div>
-
-
-                <div>
-
-                    <p class="carrito-precio">
-                        $${carrito[i].precio.toLocaleString("es-CL")}
-                    </p>
-
-                    <button
-                        class="btn-eliminar"
-                        onclick="eliminarProducto(${i})"
-                    >
-                        Eliminar
-                    </button>
-
-                </div>
-
-            </div>
-        `;
-
-
-        total = total + carrito[i].precio;
-
-    }
-
-
-    totalCarrito.innerHTML =
-        "$" + total.toLocaleString("es-CL");
-
-
-    carritoContador.innerHTML =
-        carrito.length;
-
-}
-
-
-// ELIMINAR PRODUCTO
-
-function eliminarProducto(posicion) {
-
-    carrito.splice(posicion, 1);
-
-
-    localStorage.setItem(
-        "carrito",
-        JSON.stringify(carrito)
-    );
-
 
     mostrarCarrito();
-
-}
-
-
-// MOSTRAR AL CARGAR PÁGINA
-
-mostrarCarrito();
+})();

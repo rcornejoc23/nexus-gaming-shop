@@ -1,351 +1,142 @@
-let formRegistro =
-    document.getElementById("formRegistro");
+(function () {
+    "use strict";
 
+    const formulario = document.getElementById("formRegistro");
+    const region = document.getElementById("region");
+    const comuna = document.getElementById("comuna");
+    const regiones = window.NexusUsuarios.regiones;
 
-let region =
-    document.getElementById("region");
+    function mostrarError(id, mensaje) {
+        document.getElementById(id).textContent = mensaje;
+    }
 
-let comuna =
-    document.getElementById("comuna");
+    region.replaceChildren();
+    const regionInicial = document.createElement("option");
+    regionInicial.value = "";
+    regionInicial.textContent = "Seleccione una región";
+    region.appendChild(regionInicial);
 
+    regiones.forEach(function (elemento, indice) {
+        const opcion = document.createElement("option");
+        opcion.value = String(indice);
+        opcion.textContent = elemento.nombre;
+        region.appendChild(opcion);
+    });
 
-// COMUNAS
+    region.addEventListener("change", function () {
+        comuna.replaceChildren();
+        const inicial = document.createElement("option");
+        inicial.value = "";
+        inicial.textContent = "Seleccione una comuna";
+        comuna.appendChild(inicial);
 
-let comunasMetropolitana = [
-    "Puente Alto",
-    "Santiago",
-    "La Florida",
-    "San Miguel",
-    "Providencia",
-    "Maipú",
-    "Las Condes",
-    "Ñuñoa",
-    "La Reina",
-    "Vitacura",
-    "Lo Barnechea",
-    "Peñalolén",
-    "Macul",
-    "San Joaquín",
-    "La Granja",
-    "La Cisterna",
-    "El Bosque",
-    "Pedro Aguirre Cerda",
-    "San Ramón",
-    "Cerrillos",
-    "Lo Espejo",
-    "Quilicura",
-    "Pudahuel",
-    "Independencia",
-    "Recoleta",
-    "Renca",
-    "Cerro Navia",
-    "Conchalí",
-    "Huechuraba",
-    "Lo Prado",
-    "El Monte",
-    "Talagante",
-    "San Bernardo",
-
-];
-
-
-// CAMBIO DE REGIÓN
-
-region.addEventListener("change", function() {
-
-    comuna.innerHTML =
-        '<option value="">Seleccione una comuna</option>';
-
-
-    if (region.value == "metropolitana") {
-
-        for (
-            let i = 0;
-            i < comunasMetropolitana.length;
-            i++
-        ) {
-
-            comuna.innerHTML += `
-                <option value="${comunasMetropolitana[i]}">
-                    ${comunasMetropolitana[i]}
-                </option>
-            `;
+        const seleccion = regiones[Number(region.value)];
+        if (!seleccion) {
+            return;
         }
 
-    }
+        seleccion.comunas.forEach(function (nombre) {
+            const opcion = document.createElement("option");
+            opcion.value = nombre;
+            opcion.textContent = nombre;
+            comuna.appendChild(opcion);
+        });
+    });
 
-});
-
-
-// VALIDAR RUN
-
-function validarRun(run) {
-
-    run = run.toUpperCase();
-
-    if (run.length < 7 || run.length > 9) {
-        return false;
-    }
-
-
-    let cuerpo =
-        run.substring(0, run.length - 1);
-
-    let digitoVerificador =
-        run.substring(run.length - 1);
-
-
-    if (isNaN(cuerpo)) {
-        return false;
-    }
-
-
-    let suma = 0;
-    let multiplicador = 2;
-
-
-    for (
-        let i = cuerpo.length - 1;
-        i >= 0;
-        i--
-    ) {
-
-        suma =
-            suma +
-            parseInt(cuerpo[i]) * multiplicador;
-
-
-        multiplicador++;
-
-
-        if (multiplicador == 8) {
-            multiplicador = 2;
+    function validarRun(run) {
+        const valor = run.trim().toUpperCase();
+        if (!/^\d{7,8}[0-9K]$/.test(valor)) {
+            return false;
         }
 
+        const cuerpo = valor.slice(0, -1);
+        const verificador = valor.slice(-1);
+        let suma = 0;
+        let multiplicador = 2;
+
+        for (let posicion = cuerpo.length - 1; posicion >= 0; posicion -= 1) {
+            suma += Number(cuerpo[posicion]) * multiplicador;
+            multiplicador = multiplicador === 7 ? 2 : multiplicador + 1;
+        }
+
+        const resultado = 11 - (suma % 11);
+        const calculado = resultado === 11 ? "0" : resultado === 10 ? "K" : String(resultado);
+        return calculado === verificador;
     }
 
-
-    let resto = suma % 11;
-
-    let resultado = 11 - resto;
-
-    let digitoCalculado;
-
-
-    if (resultado == 11) {
-
-        digitoCalculado = "0";
-
-    } else if (resultado == 10) {
-
-        digitoCalculado = "K";
-
-    } else {
-
-        digitoCalculado =
-            resultado.toString();
-    }
-
-
-    if (digitoCalculado == digitoVerificador) {
-
-        return true;
-
-    } else {
-
-        return false;
-    }
-
-}
-
-
-// SUBMIT
-
-formRegistro.addEventListener(
-    "submit",
-    function(evento) {
-
+    formulario.addEventListener("submit", function (evento) {
         evento.preventDefault();
+        ["errorRun", "errorNombre", "errorApellidos", "errorCorreo", "errorPasswordRegistro", "errorDireccion"].forEach(function (id) {
+            const elemento = document.getElementById(id);
+            if (elemento) {
+                elemento.textContent = "";
+            }
+        });
 
+        const run = document.getElementById("run").value.trim().toUpperCase();
+        const nombre = document.getElementById("nombre").value.trim();
+        const apellidos = document.getElementById("apellidos").value.trim();
+        const correo = document.getElementById("correo").value.trim().toLowerCase();
+        const password = document.getElementById("passwordRegistro").value;
+        const direccion = document.getElementById("direccion").value.trim();
+        let valido = true;
 
-        let run =
-            document.getElementById("run").value;
-
-        let nombre =
-            document.getElementById("nombre").value;
-
-        let apellidos =
-            document.getElementById("apellidos").value;
-
-        let correo =
-            document.getElementById("correo").value;
-
-        let direccion =
-            document.getElementById("direccion").value;
-
-
-        let errorRun =
-            document.getElementById("errorRun");
-
-        let errorNombre =
-            document.getElementById("errorNombre");
-
-        let errorApellidos =
-            document.getElementById("errorApellidos");
-
-        let errorCorreo =
-            document.getElementById("errorCorreo");
-
-        let errorDireccion =
-            document.getElementById("errorDireccion");
-
-
-        let formularioValido = true;
-
-
-        // LIMPIAR ERRORES
-
-        errorRun.innerHTML = "";
-        errorNombre.innerHTML = "";
-        errorApellidos.innerHTML = "";
-        errorCorreo.innerHTML = "";
-        errorDireccion.innerHTML = "";
-
-
-        // RUN
-
-        if (run == "") {
-
-            errorRun.innerHTML =
-                "El RUN es obligatorio.";
-
-            formularioValido = false;
-
-        } else if (validarRun(run) == false) {
-
-            errorRun.innerHTML =
-                "El RUN ingresado no es válido.";
-
-            formularioValido = false;
+        if (!validarRun(run)) {
+            mostrarError("errorRun", "El RUN ingresado no es válido.");
+            valido = false;
         }
-
-
-        // NOMBRE
-
-        if (nombre == "") {
-
-            errorNombre.innerHTML =
-                "El nombre es obligatorio.";
-
-            formularioValido = false;
-
-        } else if (nombre.length > 50) {
-
-            errorNombre.innerHTML =
-                "El nombre no puede superar los 50 caracteres.";
-
-            formularioValido = false;
+        if (!nombre || nombre.length > 50) {
+            mostrarError("errorNombre", "Ingresa un nombre de hasta 50 caracteres.");
+            valido = false;
         }
-
-
-        // APELLIDOS
-
-        if (apellidos == "") {
-
-            errorApellidos.innerHTML =
-                "Los apellidos son obligatorios.";
-
-            formularioValido = false;
-
-        } else if (apellidos.length > 100) {
-
-            errorApellidos.innerHTML =
-                "Los apellidos no pueden superar los 100 caracteres.";
-
-            formularioValido = false;
+        if (!apellidos || apellidos.length > 100) {
+            mostrarError("errorApellidos", "Ingresa apellidos de hasta 100 caracteres.");
+            valido = false;
         }
-
-
-        // CORREO
-
-        if (correo == "") {
-
-            errorCorreo.innerHTML =
-                "El correo es obligatorio.";
-
-            formularioValido = false;
-
-        } else if (correo.length > 100) {
-
-            errorCorreo.innerHTML =
-                "El correo no puede superar los 100 caracteres.";
-
-            formularioValido = false;
-
-        } else if (
-            !correo.endsWith("@duoc.cl") &&
-            !correo.endsWith("@profesor.duoc.cl") &&
-            !correo.endsWith("@gmail.com")
-        ) {
-
-            errorCorreo.innerHTML =
-                "El dominio del correo no está permitido.";
-
-            formularioValido = false;
+        if (!/^[^\s@]+@(?:duoc\.cl|profesor\.duoc\.cl|gmail\.com)$/i.test(correo)) {
+            mostrarError("errorCorreo", "Utiliza un correo @duoc.cl, @profesor.duoc.cl o @gmail.com.");
+            valido = false;
         }
-
-
-        // DIRECCIÓN
-
-        if (direccion == "") {
-
-            errorDireccion.innerHTML =
-                "La dirección es obligatoria.";
-
-            formularioValido = false;
-
-        } else if (direccion.length > 300) {
-
-            errorDireccion.innerHTML =
-                "La dirección no puede superar los 300 caracteres.";
-
-            formularioValido = false;
+        if (password.length < 4 || password.length > 20) {
+            mostrarError("errorPasswordRegistro", "La contraseña debe tener entre 4 y 20 caracteres.");
+            valido = false;
         }
-
-
-        // REGIÓN
-
-        if (region.value == "") {
-
+        if (!region.value) {
             alert("Debe seleccionar una región.");
-
-            formularioValido = false;
+            valido = false;
         }
-
-
-        // COMUNA
-
-        if (comuna.value == "") {
-
+        if (!comuna.value) {
             alert("Debe seleccionar una comuna.");
-
-            formularioValido = false;
+            valido = false;
+        }
+        if (!direccion || direccion.length > 300) {
+            mostrarError("errorDireccion", "Ingresa una dirección de hasta 300 caracteres.");
+            valido = false;
         }
 
-
-        // RESULTADO
-
-        if (formularioValido == true) {
-
-            alert(
-                "Usuario registrado correctamente."
-            );
-
-            formRegistro.reset();
-
-            comuna.innerHTML =
-                '<option value="">Seleccione una comuna</option>';
+        if (!valido) {
+            return;
         }
 
-    }
-);
+        const registro = window.NexusUsuarios.registrar({
+            run: run,
+            nombre: nombre,
+            apellidos: apellidos,
+            correo: correo,
+            password: password,
+            tipo: "Cliente",
+            region: regiones[Number(region.value)].nombre,
+            comuna: comuna.value,
+            direccion: direccion,
+            fechaNacimiento: document.getElementById("fechaNacimiento").value
+        });
+
+        if (!registro.ok) {
+            mostrarError("errorCorreo", registro.motivo);
+            return;
+        }
+
+        alert("Usuario registrado correctamente.");
+        window.location.href = "login.html";
+    });
+})();

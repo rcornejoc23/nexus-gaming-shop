@@ -1,81 +1,46 @@
-let formLogin = document.getElementById("formLogin");
+(function () {
+    "use strict";
 
-formLogin.addEventListener("submit", function(evento) {
+    const formulario = document.getElementById("formLogin");
+    const errorCorreo = document.getElementById("errorCorreoLogin");
+    const errorPassword = document.getElementById("errorPassword");
 
-    evento.preventDefault();
+    formulario.addEventListener("submit", function (evento) {
+        evento.preventDefault();
+        errorCorreo.textContent = "";
+        errorPassword.textContent = "";
 
-    let correo = document.getElementById("correoLogin").value;
-    let password = document.getElementById("password").value;
+        const correo = document.getElementById("correoLogin").value.trim();
+        const password = document.getElementById("password").value;
+        let valido = true;
 
-    let errorCorreo = document.getElementById("errorCorreoLogin");
-    let errorPassword = document.getElementById("errorPassword");
+        if (!correo) {
+            errorCorreo.textContent = "El correo es obligatorio.";
+            valido = false;
+        } else if (!/^[^\s@]+@(?:duoc\.cl|profesor\.duoc\.cl|gmail\.com)$/i.test(correo)) {
+            errorCorreo.textContent = "Utiliza un correo @duoc.cl, @profesor.duoc.cl o @gmail.com.";
+            valido = false;
+        }
 
-    let formularioValido = true;
+        if (!password) {
+            errorPassword.textContent = "La contraseña es obligatoria.";
+            valido = false;
+        } else if (password.length < 4 || password.length > 20) {
+            errorPassword.textContent = "La contraseña debe tener entre 4 y 20 caracteres.";
+            valido = false;
+        }
 
+        if (!valido) {
+            return;
+        }
 
-    // LIMPIAR MENSAJES
-
-    errorCorreo.innerHTML = "";
-    errorPassword.innerHTML = "";
-
-
-    // VALIDAR CORREO
-
-    if (correo == "") {
-
-        errorCorreo.innerHTML =
-            "El correo es obligatorio.";
-
-        formularioValido = false;
-
-    } else if (correo.length > 100) {
-
-        errorCorreo.innerHTML =
-            "El correo no puede superar los 100 caracteres.";
-
-        formularioValido = false;
-
-    } else if (
-        !correo.endsWith("@duoc.cl") &&
-        !correo.endsWith("@profesor.duoc.cl") &&
-        !correo.endsWith("@gmail.com")
-    ) {
-
-        errorCorreo.innerHTML =
-            "El dominio del correo no está permitido.";
-
-        formularioValido = false;
-    }
-
-
-    // VALIDAR CONTRASEÑA
-
-    if (password == "") {
-
-        errorPassword.innerHTML =
-            "La contraseña es obligatoria.";
-
-        formularioValido = false;
-
-    } else if (
-        password.length < 4 ||
-        password.length > 10
-    ) {
-
-        errorPassword.innerHTML =
-            "La contraseña debe tener entre 4 y 10 caracteres.";
-
-        formularioValido = false;
-    }
-
-
-    // RESULTADO
-
-    if (formularioValido == true) {
+        const usuario = window.NexusUsuarios.iniciarSesion(correo, password);
+        if (!usuario) {
+            errorPassword.textContent = "Correo o contraseña incorrectos.";
+            return;
+        }
 
         alert("Inicio de sesión correcto.");
-
-        formLogin.reset();
-    }
-
-});
+        window.location.href = usuario.tipo === "Administrador" ? "admin/index.html" : "index.html";
+    });
+})();

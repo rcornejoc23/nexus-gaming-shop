@@ -56,6 +56,7 @@
                                 placeholder="19011022K"
                                 minlength="7"
                                 maxlength="9"
+                                autocomplete="off"
                             >
                             <p class="mensaje-error" id="errorRun"></p>
                         </div>
@@ -66,6 +67,7 @@
                                 type="text"
                                 id="nombre"
                                 maxlength="50"
+                                autocomplete="given-name"
                             >
                             <p class="mensaje-error" id="errorNombre"></p>
                         </div>
@@ -76,6 +78,7 @@
                                 type="text"
                                 id="apellidos"
                                 maxlength="100"
+                                autocomplete="family-name"
                             >
                             <p class="mensaje-error" id="errorApellidos"></p>
                         </div>
@@ -86,6 +89,7 @@
                                 type="email"
                                 id="correo"
                                 maxlength="100"
+                                autocomplete="email"
                             >
                             <p class="mensaje-error" id="errorCorreo"></p>
                         </div>
@@ -98,8 +102,10 @@
                                 name="passwordRegistro"
                                 autocomplete="new-password"
                                 placeholder="Ingresa una contraseña"
+                                maxlength="20"
                             >
-                            <p class="formulario-ayuda">Sin requisitos de longitud o formato.</p>
+                            <p class="mensaje-error" id="errorPasswordRegistro"></p>
+                            <p class="formulario-ayuda">Debe tener entre 4 y 20 caracteres.</p>
                         </div>
 
                         <div class="form-group">
@@ -173,7 +179,15 @@
 
     </main>
 
+    <footer>
+        <div class="contenedor">
+            <p>NEXUS Gaming</p>
+            <p>Crea tu cuenta para continuar.</p>
+        </div>
+    </footer>
 
+
+    <script src="js/usuarios.js"></script>
     <script src="js/registro.js"></script>
 
 </body>

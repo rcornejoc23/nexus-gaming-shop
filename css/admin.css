@@ -9,6 +9,8 @@
 .admin-menu a { padding:12px; color:#d1d5db; border-radius:5px; }
 .admin-menu a:hover { background:#1f2937; color:white; }
 .admin-menu .activo { background:#7c3aed; color:white; }
+.btn-cerrar-sesion { margin-top:25px; padding:9px 12px; border:1px solid #6b7280; border-radius:5px; background:transparent; color:#d1d5db; cursor:pointer; }
+.btn-cerrar-sesion:hover { background:#374151; color:white; }
 .admin-contenido { flex:1; background:#f4f4f4; padding:35px; }
 .admin-header { display:flex; justify-content:space-between; align-items:center; gap:20px; margin-bottom:30px; }
 .admin-header p { color:#666; margin-top:5px; }

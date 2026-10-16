@@ -1,150 +1,53 @@
-// ARREGLO DE PRODUCTOS
+(function () {
+    "use strict";
 
-let productos = [
-    {
-        id: 1,
-        nombre: "Teclado Mecánico RGB",
-        precio: 39990,
-        categoria: "Teclados",
-        imagen: "img/teclado.jpg"
-    },
-    {
-        id: 2,
-        nombre: "Mouse Gamer Pro",
-        precio: 24990,
-        categoria: "Mouse",
-        imagen: "img/mouse.jpg"
-    },
-    {
-        id: 3,
-        nombre: "Headset Gaming 7.1",
-        precio: 49990,
-        categoria: "Audio",
-        imagen: "img/audifonos.jpg"
-    },
-    {
-        id: 4,
-        nombre: "Mousepad XL",
-        precio: 14990,
-        categoria: "Accesorios",
-        imagen: "img/mousepad.jpg"
-    },
-    {
-        id: 5,
-        nombre: "Soporte para Audífonos",
-        precio: 12990,
-        categoria: "Accesorios",
-        imagen: "img/soporte.jpg"
-    },
-    {
-        id: 6,
-        nombre: "Control Gamer Inalámbrico",
-        precio: 34990,
-        categoria: "Controles",
-        imagen: "img/control.jpg"
-    }
-];
+    const listaProductos = document.getElementById("listaProductos");
+    const productos = window.NexusCatalogo.obtenerProductos();
 
-
-// CONTENEDOR DE PRODUCTOS
-
-let listaProductos = document.getElementById("listaProductos");
-
-
-// MOSTRAR PRODUCTOS
-
-for (let i = 0; i < productos.length; i++) {
-
-    listaProductos.innerHTML += `
-        <div class="producto">
-
-            <img
-                src="${productos[i].imagen}"
-                alt="${productos[i].nombre}"
-                class="imagen-producto"
-            >
-
-            <h3>
-                ${productos[i].nombre}
-            </h3>
-
-            <p class="categoria-producto">
-                ${productos[i].categoria}
-            </p>
-
-            <p class="precio-producto">
-                $${productos[i].precio.toLocaleString("es-CL")}
-            </p>
-
-            <a
-                href="detalle-producto.html"
-                class="btn-detalle"
-            >
-                Ver detalle
-            </a>
-
-            <button
-                class="btn-agregar"
-                onclick="agregarCarrito(${productos[i].id})"
-            >
-                Añadir
-            </button>
-
-        </div>
-    `;
-}
-
-
-// OBTENER CARRITO GUARDADO
-
-let carrito = JSON.parse(localStorage.getItem("carrito"));
-
-
-// SI NO EXISTE CARRITO
-
-if (carrito == null) {
-    carrito = [];
-}
-
-
-// AÑADIR PRODUCTO
-
-function agregarCarrito(idProducto) {
-
-    for (let i = 0; i < productos.length; i++) {
-
-        if (productos[i].id == idProducto) {
-
-            carrito.push(productos[i]);
-
-            localStorage.setItem(
-                "carrito",
-                JSON.stringify(carrito)
-            );
-
-            actualizarContador();
-
-            alert(
-                productos[i].nombre +
-                " fue añadido al carrito"
-            );
-
-        }
-
+    function formatoPrecio(precio) {
+        return "$" + Number(precio).toLocaleString("es-CL");
     }
 
-}
+    function crearTarjeta(producto) {
+        const tarjeta = document.createElement("article");
+        tarjeta.className = "producto";
 
+        const imagen = document.createElement("img");
+        imagen.className = "imagen-producto";
+        imagen.src = producto.imagen;
+        imagen.alt = producto.nombre;
 
-// ACTUALIZAR CONTADOR
+        const nombre = document.createElement("h3");
+        nombre.textContent = producto.nombre;
 
-function actualizarContador() {
+        const categoria = document.createElement("p");
+        categoria.className = "categoria-producto";
+        categoria.textContent = producto.categoria;
 
-    let contador = document.getElementById("carritoContador");
+        const precio = document.createElement("p");
+        precio.className = "precio-producto";
+        precio.textContent = formatoPrecio(producto.precio);
 
-    contador.innerHTML = carrito.length;
+        const detalle = document.createElement("a");
+        detalle.className = "btn-detalle";
+        detalle.href = "detalle-producto.html?id=" + encodeURIComponent(producto.id);
+        detalle.textContent = "Ver detalle";
 
-}
+        const boton = document.createElement("button");
+        boton.className = "btn-agregar";
+        boton.type = "button";
+        boton.textContent = producto.stock > 0 ? "Añadir" : "Sin stock";
+        boton.disabled = producto.stock <= 0;
+        boton.addEventListener("click", function () {
+            window.NexusCarrito.agregar(producto, 1);
+            alert(producto.nombre + " fue añadido al carrito");
+        });
 
+        tarjeta.append(imagen, nombre, categoria, precio, detalle, boton);
+        return tarjeta;
+    }
 
-actualizarContador();
+    productos.forEach(function (producto) {
+        listaProductos.appendChild(crearTarjeta(producto));
+    });
+})();
