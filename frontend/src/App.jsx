@@ -1,1335 +1,237 @@
-import { useState, useEffect } from 'react'
-import { Container, Row, Col, Button, Modal, Alert } from 'react-bootstrap'
-import productosBase from './data/catalogo'
-import ProductoCard from './components/ProductoCard'
-import Carrito from './components/Carrito'
-import Menu from './components/Menu'
-import Checkout from './components/Checkout'
-import CompraExitosa from './components/CompraExitosa'
-import CompraFallida from './components/CompraFallida'
-import AdminProductos from './components/AdminProductos'
-import AdminCategorias from './components/AdminCategorias'
-import AdminPedidos from './components/AdminPedidos'
-import AdminUsuarios from './components/AdminUsuarios'
-import AdminReportes from './components/AdminReportes'
-import AdminDashboard from './components/AdminDashboard'
-import PerfilUsuario from './components/PerfilUsuario'
-import Categorias from './components/Categorias'
-import Ofertas from './components/Ofertas'
-import RegistroUsuario from './components/RegistroUsuario'
-import InicioSesion from './components/InicioSesion'
-import Nosotros from './components/Nosotros'
-import Contacto from './components/Contacto'
-import Blogs from './components/Blogs'
-import Inicio from './components/Inicio'
-import './App.css'
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { crearProducto, actualizarProducto, eliminarProducto, guardarProductos, leerProductos } from "./services/catalogo";
+import { validarCantidad } from "./services/validaciones";
+import { crearPedido } from "./services/pedidos";
+import { obtenerPrecioFinal } from "./services/precios";
+import Layout from "./components/Layout";
+import Home from "./pages/Home";
+import Products from "./pages/Products";
+import ProductDetail from "./pages/ProductDetail";
+import Categories from "./pages/Categories";
+import Offers from "./pages/Offers";
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import PurchaseSuccess from "./pages/PurchaseSuccess";
+import PurchaseFailure from "./pages/PurchaseFailure";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminProducts from "./pages/AdminProducts";
+import AdminProductForm from "./pages/AdminProductForm";
+import Login from "./pages/Login";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { getSession, login, logout } from "./services/auth";
+import { actualizarUsuario, crearUsuario, eliminarUsuario, leerUsuarios } from "./services/usuarios";
+import AdminUsers from "./pages/AdminUsers";
+import AdminUserForm from "./pages/AdminUserForm";
+import AdminOrders from "./pages/AdminOrders";
+import AdminOrderDetail from "./pages/AdminOrderDetail";
+import AdminCategories from "./pages/AdminCategories";
+import AdminReports from "./pages/AdminReports";
+import AdminUserHistory from "./pages/AdminUserHistory";
+import Profile from "./pages/Profile";
+import Register from "./pages/Register";
+import PurchaseHistory from "./pages/PurchaseHistory";
+import About from "./pages/About";
+import Blog from "./pages/Blog";
+import Contact from "./pages/Contact";
 
-function App() {
+const CART_KEY = "carritoReact";
+const StoreContext = createContext(null);
+const AuthContext = createContext(null);
 
-  function actualizarCategoriaProductos(anterior, nueva) {
-    setProductos(actuales => {
-      const actualizados = actuales.map(producto =>
-        producto.categoria === anterior
-          ? { ...producto, categoria: nueva }
-          : producto
-      )
-      localStorage.setItem('productosNexus', JSON.stringify(actualizados))
-      return actualizados
-    })
+function readCart() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(CART_KEY));
+    return Array.isArray(saved) ? saved : [];
+  } catch {
+    return [];
   }
-
-  // Recuperar el catálogo guardado o usar los productos iniciales
-
-  const [productos, setProductos] = useState(() => {
-
-    try {
-
-      const guardados = JSON.parse(localStorage.getItem('productosNexus'))
-
-      if (Array.isArray(guardados)) {
-
-        // Incorporar los descuentos de catalogo.js
-
-        // sin perder los productos guardados
-
-        return guardados.map((producto) => {
-
-          const productoBase = productosBase.find(
-
-            (item) => item.id === producto.id
-
-          )
-
-          return {
-
-            ...producto,
-
-            descuento: producto.descuento ?? productoBase?.descuento ?? 0
-
-          }
-
-        })
-
-      }
-
-      return productosBase
-
-    } catch {
-
-      return productosBase
-
-    }
-
-  })
-
-  const [vista, setVista] = useState('inicio')
-
-  const [productoSeleccionado, setProductoSeleccionado] = useState(null)
-
-  // Recuperar el carrito guardado
-
-  const [carrito, setCarrito] = useState(() => {
-
-    try {
-
-      const guardado = JSON.parse(localStorage.getItem('carritoNexus'))
-
-      return Array.isArray(guardado) ? guardado : []
-
-    } catch {
-
-      return []
-
-    }
-
-  })
-
-  const [usuarioActivo, setUsuarioActivo] = useState(() => {
-
-    try {
-
-      const guardado = JSON.parse(
-
-        localStorage.getItem('sesionNexus')
-
-      )
-
-      return guardado || null
-
-    } catch {
-
-      return null
-
-    }
-
-  })
-
-  const [mensaje, setMensaje] = useState('')
-  const [datosCompra, setDatosCompra] = useState(null)
-  const [totalCompra, setTotalCompra] = useState(0)
-  const [pedidoCompra, setPedidoCompra] = useState(null)
-  const [mensajeError, setMensajeError] = useState('')
-
-  // Guardar el catálogo
-
-  useEffect(() => {
-
-    localStorage.setItem('productosNexus', JSON.stringify(productos))
-
-  }, [productos])
-
-  // Guardar el carrito
-
-  useEffect(() => {
-
-    localStorage.setItem('carritoNexus', JSON.stringify(carrito))
-
-  }, [carrito])
-
-  // Obtener el stock actual desde el catálogo
-
-  function obtenerStockDisponible(producto) {
-
-    const productoActual = productos.find(
-
-      (item) => item.id === producto.id
-
-    )
-
-    if (!productoActual) {
-
-      return 0
-
-    }
-
-    const existente = carrito.find(
-
-      (item) => item.producto.id === producto.id
-
-    )
-
-    const cantidad = existente ? existente.cantidad : 0
-
-    return Math.max(0, productoActual.stock - cantidad)
-
-  }
-
-  // Agregar un producto al carrito
-
-  function agregarCarrito(producto) {
-
-    if (obtenerStockDisponible(producto) <= 0) {
-
-      setMensaje('No hay más stock disponible de ' + producto.nombre)
-
-      return
-
-    }
-
-    const existente = carrito.find(
-
-      (item) => item.producto.id === producto.id
-
-    )
-
-    if (existente) {
-
-      setCarrito(carrito.map((item) => {
-
-        if (item.producto.id === producto.id) {
-
-          return { ...item, cantidad: item.cantidad + 1 }
-
-        }
-
-        return item
-
-      }))
-
-    } else {
-
-      setCarrito([
-
-        ...carrito,
-
-        { producto: producto, cantidad: 1 }
-
-      ])
-
-    }
-
-    setMensaje(producto.nombre + ' agregado al carrito')
-
-  }
-
-  // Aumentar la cantidad
-
-  function aumentarCantidad(id) {
-
-    const item = carrito.find(
-
-      (item) => item.producto.id === id
-
-    )
-
-    if (!item) return
-
-    if (obtenerStockDisponible(item.producto) <= 0) {
-
-      setMensaje('No hay más stock disponible')
-
-      return
-
-    }
-
-    setCarrito(carrito.map((item) => {
-
-      if (item.producto.id === id) {
-
-        return { ...item, cantidad: item.cantidad + 1 }
-
-      }
-
-      return item
-
-    }))
-
-    setMensaje('Cantidad aumentada')
-
-  }
-
-  // Disminuir la cantidad
-
-  function disminuirCantidad(id) {
-
-    setCarrito(
-
-      carrito
-
-        .map((item) => {
-
-          if (item.producto.id === id) {
-
-            return { ...item, cantidad: item.cantidad - 1 }
-
-          }
-
-          return item
-
-        })
-
-        .filter((item) => item.cantidad > 0)
-
-    )
-
-    setMensaje('Cantidad disminuida')
-
-  }
-
-  // Eliminar un producto
-
-  function eliminarProducto(id) {
-
-    setCarrito(carrito.filter(
-
-      (item) => item.producto.id !== id
-
-    ))
-
-    setMensaje('Producto eliminado del carrito')
-
-  }
-
-  // Guardar un nuevo producto
-
-  function guardarProducto(nuevoProducto) {
-
-    // Verificar que el código no esté repetido
-
-    const codigoRepetido = productos.some(
-
-      (producto) =>
-
-        producto.codigo.toUpperCase() ===
-
-        nuevoProducto.codigo.toUpperCase()
-
-    )
-
-    if (codigoRepetido) {
-
-      alert('Ya existe un producto con ese código')
-
-      return false
-
-    }
-
-    // Obtener el siguiente ID disponible
-
-    const nuevoId = productos.reduce(
-
-      (mayor, producto) => Math.max(mayor, producto.id),
-
-      0
-
-    ) + 1
-
-    // Agregar el producto al catálogo
-
-    const productoCreado = {
-
-      id: nuevoId,
-
-      ...nuevoProducto
-
-    }
-
-    setProductos([...productos, productoCreado])
-
-    alert('Producto agregado correctamente')
-
-    return true
-
-  }
-
-  // Editar un producto existente
-
-  function editarProducto(id, productoEditado) {
-
-    // Verificar que el código no esté utilizado por otro producto
-
-    const codigoRepetido = productos.some(
-
-      (producto) =>
-
-        producto.id !== id &&
-
-        producto.codigo.toUpperCase() ===
-
-        productoEditado.codigo.toUpperCase()
-
-    )
-
-    if (codigoRepetido) {
-
-      alert('Ya existe otro producto con ese código')
-
-      return false
-
-    }
-
-    // Actualizar el producto seleccionado
-
-    const productosActualizados = productos.map((producto) => {
-
-      if (producto.id === id) {
-
-        return {
-
-          ...producto,
-
-          ...productoEditado
-
-        }
-
-      }
-
-      return producto
-
-    })
-
-    // Guardar el catálogo actualizado
-
-    setProductos(productosActualizados)
-
-    // Actualizar también los datos del carrito
-
-    const carritoActualizado = carrito.map((item) => {
-
-      if (item.producto.id === id) {
-
-        return {
-
-          ...item,
-
-          producto: {
-
-            ...item.producto,
-
-            ...productoEditado
-
-          }
-
-        }
-
-      }
-
-      return item
-
-    })
-
-    setCarrito(carritoActualizado)
-
-    alert('Producto actualizado correctamente')
-
-    return true
-
-  }
-
-  // Eliminar un producto del catálogo
-
-  function eliminarProductoCatalogo(id) {
-
-    const producto = productos.find(
-
-      (item) => item.id === id
-
-    )
-
-    if (!producto) {
-
-      alert('Producto no encontrado')
-
-      return
-
-    }
-
-    // Verificar si el producto está en el carrito
-
-    const estaEnCarrito = carrito.some(
-
-      (item) => item.producto.id === id
-
-    )
-
-    if (estaEnCarrito) {
-
-      alert('No puedes eliminar un producto que está en el carrito')
-
-      return
-
-    }
-
-    // Solicitar confirmación
-
-    const confirmar = window.confirm(
-
-      '¿Estás seguro de eliminar ' + producto.nombre + '?'
-
-    )
-
-    if (!confirmar) {
-
-      return
-
-    }
-
-    // Eliminar del catálogo
-
-    const productosActualizados = productos.filter(
-
-      (item) => item.id !== id
-
-    )
-
-    setProductos(productosActualizados)
-
-    alert('Producto eliminado correctamente')
-
-  }
-
-  // Contador del carrito
-
-  const cantidadCarrito = carrito.reduce(
-
-    (total, item) => total + item.cantidad,
-
-    0
-
-  )
-
-  function iniciarSesion(usuario) {
-
-    setUsuarioActivo(usuario)
-
-    localStorage.setItem(
-
-      'sesionNexus',
-
-      JSON.stringify(usuario)
-
-    )
-
-    setVista('productos')
-
-    setMensaje(`Bienvenido, ${usuario.nombre}`)
-
-  }
-
-
-  function actualizarPerfil(datosActualizados) {
-
-    if (!usuarioActivo || usuarioActivo.rol === 'admin') {
-      return false
-    }
-
-    const usuarios = JSON.parse(
-      localStorage.getItem('usuariosNexus') || '[]'
-    )
-
-    if (!Array.isArray(usuarios)) {
-      return false
-    }
-
-    const usuarioExiste = usuarios.some(
-      (usuario) => usuario.id === usuarioActivo.id
-    )
-
-    if (!usuarioExiste) {
-      return false
-    }
-
-    const correoNuevo = datosActualizados.correo.trim().toLowerCase()
-    const nombreNuevo = datosActualizados.nombre.trim()
-
-    if (nombreNuevo === '' || correoNuevo === '') {
-      return false
-    }
-
-    const correoExiste = usuarios.some(
-      (usuario) =>
-        usuario.correo === correoNuevo &&
-        usuario.id !== usuarioActivo.id
-    )
-
-    if (correoExiste) {
-      return false
-    }
-
-    const usuariosActualizados = usuarios.map((usuario) => {
-
-      if (usuario.id === usuarioActivo.id) {
-        return {
-          ...usuario,
-          nombre: nombreNuevo,
-          correo: correoNuevo
-        }
-      }
-
-      return usuario
-    })
-
-    const usuarioActualizado = {
-      ...usuarioActivo,
-      nombre: nombreNuevo,
-      correo: correoNuevo
-    }
-
-    localStorage.setItem(
-      'usuariosNexus',
-      JSON.stringify(usuariosActualizados)
-    )
-
-    localStorage.setItem(
-      'sesionNexus',
-      JSON.stringify(usuarioActualizado)
-    )
-
-    setUsuarioActivo(usuarioActualizado)
-
-    return true
-  }
-
-
-  function cerrarSesion() {
-
-    setUsuarioActivo(null)
-
-    localStorage.removeItem('sesionNexus')
-
-    setVista('productos')
-
-    setMensaje('Sesión cerrada correctamente')
-
-  }
-
-  // Cambiar de pantalla
-
-  function cambiarVista(nuevaVista) {
-
-    setVista(nuevaVista)
-
-    setMensaje('')
-
-  }
-
-  // Ir al formulario de compra
-
-  function irCheckout() {
-
-    if (carrito.length === 0) {
-
-      setMensaje('El carrito está vacío')
-
-      return
-
-    }
-
-    cambiarVista('checkout')
-
-  }
-
-  // Confirmar la compra
-
-  function confirmarCompra(datosCliente) {
-
-    if (carrito.length === 0) {
-
-      setMensajeError('El carrito está vacío.')
-
-      setVista('compraFallida')
-
-      return
-
-    }
-
-    // Copiar los productos para validar antes de descontar
-
-    const productosActualizados = productos.map(
-
-      (producto) => ({ ...producto })
-
-    )
-
-    let total = 0
-
-    for (const item of carrito) {
-
-      const producto = productosActualizados.find(
-
-        (p) => p.id === item.producto.id
-
-      )
-
-      if (!producto) {
-
-        setMensajeError('Uno de los productos ya no está disponible.')
-
-        setVista('compraFallida')
-
-        return
-
-      }
-
-      if (!Number.isInteger(item.cantidad) || item.cantidad <= 0) {
-
-        setMensajeError('La cantidad de un producto no es válida.')
-
-        setVista('compraFallida')
-
-        return
-
-      }
-
-      if (producto.stock < item.cantidad) {
-
-        setMensajeError(
-
-          'No hay stock suficiente de ' + producto.nombre
-
-        )
-
-        setVista('compraFallida')
-
-        return
-
-      }
-
-      // Descontar del inventario copiado
-
-      producto.stock -= item.cantidad
-
-      const descuento = producto.descuento || 0
-
-      const precioFinal = Math.round(
-
-        producto.precio * (1 - descuento / 100)
-
-      )
-
-      total += precioFinal * item.cantidad
-
-    }
-
-    // La compra fue validada correctamente
-
-    // Recuperar historial de compras
-    let historial
-
-    try {
-      const guardado = JSON.parse(
-        localStorage.getItem('pedidosNexus') || '[]'
-      )
-
-      historial = Array.isArray(guardado) ? guardado : []
-    } catch {
-      historial = []
-    }
-
-    // Crear registro del pedido
-    const nuevoPedido = {
-      id: Date.now(),
-      fecha: new Date().toLocaleString('es-CL'),
-      cliente: datosCliente,
-      productos: carrito.map((item) => ({
-        codigo: item.producto.codigo,
-        nombre: item.producto.nombre,
-        cantidad: item.cantidad,
-        precio: Math.round(
-          item.producto.precio *
-          (1 - (item.producto.descuento || 0) / 100)
-        )
-      })),
-      total: total,
-      estado: 'Confirmado'
-    }
-
-    // Guardar pedido en el historial
-    localStorage.setItem(
-      'pedidosNexus',
-      JSON.stringify([...historial, nuevoPedido])
-    )
-
-    // Actualizar inventario y finalizar compra
-    setProductos(productosActualizados)
-    setDatosCompra(datosCliente)
-    setTotalCompra(total)
-    setPedidoCompra(nuevoPedido)
-    setCarrito([])
-    setMensaje('')
-
-    setVista('compraExitosa')
-
-  }
-
-  return (
-
-    <>
-
-      <Menu
-
-        cambiarVista={cambiarVista}
-
-        cantidadCarrito={cantidadCarrito}
-
-        usuarioActivo={usuarioActivo}
-
-        cerrarSesion={cerrarSesion}
-
-      />
-
-      <Container className="mt-4">
-
-        {/* Productos */}
-
-        {vista === 'productos' && (
-
-          <>
-
-            <h1 className="text-center mb-4">
-
-              NEXUS Gaming Shop
-
-            </h1>
-
-            <h2 className="mb-3">Nuestros Productos</h2>
-
-            {mensaje && (
-
-              <Alert variant="info">{mensaje}</Alert>
-
-            )}
-
-            <Row>
-
-              {productos.map((producto) => (
-
-                <Col md={4} className="mb-4" key={producto.id}>
-
-                  <ProductoCard
-
-                    producto={producto}
-
-                    verDetalle={setProductoSeleccionado}
-
-                    agregarCarrito={agregarCarrito}
-
-                    stockDisponible={obtenerStockDisponible(producto)}
-
-                  />
-                </Col>
-              ))}
-
-            </Row>
-
-          </>
-
-        )}
-
-        {/* Categorías */}
-
-        {vista === 'categorias' && (
-
-          <>
-
-            {mensaje && (
-
-              <Alert variant="info">{mensaje}</Alert>
-
-            )}
-
-            <Categorias
-
-              productos={productos}
-
-              verDetalle={setProductoSeleccionado}
-
-              agregarCarrito={agregarCarrito}
-
-              obtenerStockDisponible={obtenerStockDisponible}
-
-            />
-
-          </>
-
-        )}
-
-        {/* Ofertas */}
-
-        {vista === 'ofertas' && (
-
-          <>
-
-            {mensaje && (
-
-              <Alert variant="info">{mensaje}</Alert>
-
-            )}
-
-            <Ofertas
-
-              productos={productos}
-
-              verDetalle={setProductoSeleccionado}
-
-              agregarCarrito={agregarCarrito}
-
-              obtenerStockDisponible={obtenerStockDisponible}
-
-            />
-
-          </>
-
-        )}
-
-
-        {/* Perfil de usuario */}
-        {vista === 'perfil' && usuarioActivo && (
-          <PerfilUsuario
-            usuarioActivo={usuarioActivo}
-            actualizarPerfil={actualizarPerfil}
-          />
-        )}
-
-        {/* Acceso al perfil sin iniciar sesión */}
-        {vista === 'perfil' && !usuarioActivo && (
-          <Alert variant="warning" className="mt-4">
-            Debes iniciar sesión para visualizar tu perfil.
-          </Alert>
-        )}
-
-
-        {/* Registro de Usuario */}
-
-        {vista === 'registro' && (
-
-          <RegistroUsuario cambiarVista={cambiarVista} />
-
-        )}
-
-        {/* Inicio de Sesión */}
-
-        {vista === 'login' && (
-
-          <InicioSesion
-
-            iniciarSesion={iniciarSesion}
-
-            cambiarVista={cambiarVista}
-
-          />
-
-        )}
-
-        {/* Nosotros */}
-
-        {vista === 'nosotros' && (
-
-          <Nosotros />
-
-        )}
-
-        {/* Contacto */}
-
-        {vista === 'contacto' && (
-
-          <Contacto />
-
-        )}
-
-        {/* Blogs */}
-
-        {vista === 'blogs' && (
-
-          <Blogs />
-
-        )}
-
-        {/* Página de Inicio */}
-
-        {vista === 'inicio' && (
-
-          <Inicio
-
-            cambiarVista={cambiarVista}
-
-            productos={productos}
-
-          />
-
-        )}
-
-        {/* Carrito */}
-
-        {vista === 'carrito' && (
-
-          <>
-
-            {mensaje && (
-
-              <Alert variant="info">{mensaje}</Alert>
-
-            )}
-
-            <Carrito
-
-              carrito={carrito}
-
-              eliminarProducto={eliminarProducto}
-
-              aumentarCantidad={aumentarCantidad}
-
-              disminuirCantidad={disminuirCantidad}
-
-              irCheckout={irCheckout}
-
-              stockDisponible={obtenerStockDisponible}
-
-            />
-
-            <Button
-
-              variant="secondary"
-
-              className="mb-4"
-
-              onClick={() => cambiarVista('productos')}
-
-            >
-
-              Seguir comprando
-
-            </Button>
-
-          </>
-
-        )}
-
-        {/* Checkout */}
-
-        {vista === 'checkout' && (
-          <Checkout
-            carrito={carrito}
-            confirmarCompra={confirmarCompra}
-            volverCarrito={() => cambiarVista('carrito')}
-            usuarioActivo={usuarioActivo}
-          />
-        )}
-
-        {/* Compra exitosa */}
-
-        {vista === 'compraExitosa' && datosCompra && pedidoCompra && (
-
-          <CompraExitosa
-            datosCliente={datosCompra}
-            total={totalCompra}
-            pedido={pedidoCompra}
-            volverInicio={() => cambiarVista('productos')}
-          />
-
-        )}
-
-        {/* Compra fallida */}
-
-        {vista === 'compraFallida' && (
-
-          <CompraFallida
-
-            mensajeError={mensajeError}
-
-            volverCarrito={() => cambiarVista('carrito')}
-
-          />
-
-        )}
-
-        {/* Administración de productos: solo administrador */}
-        {vista === 'administracion' && usuarioActivo?.rol === 'admin' && (
-          <>
-            <AdminDashboard productos={productos} />
-
-            <Button
-              variant="outline-primary"
-              className="mt-4 mb-3"
-              onClick={() => cambiarVista('adminCategorias')}
-            >
-              Administrar Categorías
-            </Button>
-
-            <Button
-              variant="outline-success"
-              className="mt-4 mb-3 ms-2"
-              onClick={() => cambiarVista('adminPedidos')}
-            >
-              Administrar Pedidos
-            </Button>
-
-            <Button
-              variant="outline-info"
-              className="mt-4 mb-3 ms-2"
-              onClick={() => cambiarVista('adminUsuarios')}
-            >
-              Administrar Usuarios
-            </Button>
-
-
-            <Button
-              variant="outline-warning"
-              className="mt-4 mb-3 ms-2"
-              onClick={() => cambiarVista('adminReportes')}
-            >
-              Administrar Reportes
-            </Button>
-
-
-            <AdminProductos
-              productos={productos}
-              guardarProducto={guardarProducto}
-              editarProducto={editarProducto}
-              eliminarProducto={eliminarProductoCatalogo}
-            />
-          </>
-        )}
-
-        {/* Administración de categorías */}
-        {vista === 'adminCategorias' && usuarioActivo?.rol === 'admin' && (
-          <>
-            <Button
-              variant="secondary"
-              className="mt-4 mb-3"
-              onClick={() => cambiarVista('administracion')}
-            >
-              Volver a Administración
-            </Button>
-
-            <AdminCategorias productos={productos} actualizarCategoriaProductos={actualizarCategoriaProductos} />
-          </>
-        )}
-
-        {/* Administración de pedidos */}
-        {vista === 'adminPedidos' && usuarioActivo?.rol === 'admin' && (
-          <>
-            <Button
-              variant="secondary"
-              className="mt-4 mb-3"
-              onClick={() => cambiarVista('administracion')}
-            >
-              Volver a Administración
-            </Button>
-
-            <AdminPedidos />
-          </>
-        )}
-
-        {/* Acceso restringido a pedidos */}
-        {vista === 'adminPedidos' && usuarioActivo?.rol !== 'admin' && (
-          <Alert variant="danger" className="mt-4">
-            Acceso restringido. Esta sección es exclusiva
-            para administradores.
-          </Alert>
-        )}
-
-
-        {/* Administración de usuarios */}
-        {vista === 'adminUsuarios' && usuarioActivo?.rol === 'admin' && (
-          <>
-            <Button
-              variant="secondary"
-              className="mt-4 mb-3"
-              onClick={() => cambiarVista('administracion')}
-            >
-              Volver a Administración
-            </Button>
-
-            <AdminUsuarios />
-          </>
-        )}
-
-        {/* Acceso restringido a usuarios */}
-        {vista === 'adminUsuarios' && usuarioActivo?.rol !== 'admin' && (
-          <Alert variant="danger" className="mt-4">
-            Acceso restringido. Esta sección es exclusiva
-            para administradores.
-          </Alert>
-        )}
-
-
-        {/* Administración de reportes */}
-        {vista === 'adminReportes' && usuarioActivo?.rol === 'admin' && (
-          <>
-            <Button
-              variant="secondary"
-              className="mt-4 mb-3"
-              onClick={() => cambiarVista('administracion')}
-            >
-              Volver a Administración
-            </Button>
-
-            <AdminReportes productos={productos} />
-          </>
-        )}
-
-        {/* Acceso restringido a reportes */}
-        {vista === 'adminReportes' && usuarioActivo?.rol !== 'admin' && (
-          <Alert variant="danger" className="mt-4">
-            Acceso restringido. Esta sección es exclusiva
-            para administradores.
-          </Alert>
-        )}
-
-
-        {/* Acceso restringido a categorías */}
-        {vista === 'adminCategorias' && usuarioActivo?.rol !== 'admin' && (
-          <Alert variant="danger" className="mt-4">
-            Acceso restringido. Esta sección es exclusiva para administradores.
-          </Alert>
-        )}
-
-        {/* Mensaje para usuarios sin permiso */}
-        {vista === 'administracion' && usuarioActivo?.rol !== 'admin' && (
-          <div className="mt-4">
-            <Alert variant="danger">
-              Acceso restringido. Debes iniciar sesión como administrador
-              para ingresar a esta sección.
-            </Alert>
-            <Button variant="primary" onClick={() => cambiarVista('login')}>
-              Ir a Iniciar Sesión
-            </Button>
-          </div>
-        )}
-
-        {/* Detalles del producto */}
-
-        <Modal
-
-          show={productoSeleccionado !== null}
-
-          onHide={() => setProductoSeleccionado(null)}
-
-          centered
-
-        >
-
-          <Modal.Header closeButton>
-
-            <Modal.Title>Detalle del Producto</Modal.Title>
-
-          </Modal.Header>
-
-          <Modal.Body>
-
-            {productoSeleccionado && (
-
-              <>
-
-                <img
-
-                  src={productoSeleccionado.imagen}
-
-                  alt={productoSeleccionado.nombre}
-
-                  className="img-fluid mb-3"
-
-                />
-
-                <h4>{productoSeleccionado.nombre}</h4>
-
-                <p>{productoSeleccionado.descripcion}</p>
-
-                <p>
-
-                  <strong>Categoría:</strong>{' '}
-
-                  {productoSeleccionado.categoria}
-
-                </p>
-
-                <div className="mb-3">
-                  {(productoSeleccionado.descuento || 0) > 0 ? (
-                    <>
-                      <p className="mb-1">
-                        <strong>Precio original:</strong>{' '}
-                        <del>${productoSeleccionado.precio.toLocaleString('es-CL')}</del>
-                      </p>
-                      <p className="text-danger fw-bold">
-                        Descuento: {productoSeleccionado.descuento}%
-                      </p>
-                      <p className="text-success fw-bold">
-                        Precio oferta: ${Math.round(
-                          productoSeleccionado.precio *
-                          (1 - productoSeleccionado.descuento / 100)
-                        ).toLocaleString('es-CL')}
-                      </p>
-                    </>
-                  ) : (
-                    <p>
-                      <strong>Precio:</strong> ${productoSeleccionado.precio.toLocaleString('es-CL')}
-                    </p>
-                  )}
-                </div>
-
-                <p>
-
-                  <strong>Stock:</strong>{' '}
-
-                  {obtenerStockDisponible(productoSeleccionado)}
-
-                </p>
-
-                <Button
-
-                  variant="success"
-
-                  disabled={obtenerStockDisponible(productoSeleccionado) === 0}
-
-                  onClick={() => agregarCarrito(productoSeleccionado)}
-
-                >
-
-                  Añadir al carrito
-
-                </Button>
-
-              </>
-
-            )}
-
-          </Modal.Body>
-
-          <Modal.Footer>
-
-            <Button
-
-              variant="secondary"
-
-              onClick={() => setProductoSeleccionado(null)}
-
-            >
-
-              Cerrar
-
-            </Button>
-
-          </Modal.Footer>
-
-        </Modal>
-
-      </Container>
-
-    </>
-
-  )
-
 }
 
-export default App
+export function StoreProvider({ children }) {
+  const [products, setProducts] = useState(() => leerProductos());
+  const [cart, setCart] = useState(() => readCart());
+
+  useEffect(() => localStorage.setItem(CART_KEY, JSON.stringify(cart)), [cart]);
+
+  useEffect(() => {
+    const syncProducts = (event) => {
+      if (event.key === "productosAdmin") setProducts(leerProductos());
+    };
+    window.addEventListener("storage", syncProducts);
+    return () => window.removeEventListener("storage", syncProducts);
+  }, []);
+
+  const refreshProducts = () => setProducts(leerProductos());
+
+  const createProduct = (data) => {
+    const product = crearProducto(data);
+    refreshProducts();
+    return product;
+  };
+
+  const updateProduct = (id, data) => {
+    const product = actualizarProducto(id, data);
+    refreshProducts();
+    return product;
+  };
+
+  const deleteProduct = (id) => {
+    const nextProducts = eliminarProducto(id);
+    setProducts(nextProducts);
+    return nextProducts;
+  };
+
+  const addToCart = (product, quantity = 1) => {
+    const current = products.find((item) => item.id === product.id);
+    if (!current || current.stock <= 0) return { ok: false, message: "Este producto no tiene stock disponible." };
+
+    const existing = cart.find((item) => item.productId === current.id);
+    const currentQuantity = existing?.quantity || 0;
+    const available = Math.max(0, current.stock - currentQuantity);
+    const validation = validarCantidad(quantity, available);
+    if (!validation.ok) return { ok: false, requiresConfirmation: validation.requiresConfirmation, available, requested: Number(quantity), message: validation.message };
+    const requested = validation.value;
+
+    setCart((items) => existing
+      ? items.map((item) => item.productId === current.id ? { ...item, quantity: item.quantity + requested } : item)
+      : [...items, { productId: current.id, quantity: requested }]);
+    return { ok: true };
+  };
+
+  const setCartQuantity = (productId, quantity) => {
+    const current = products.find((item) => item.id === productId);
+    if (!current) return { ok: false, message: "El producto ya no está disponible." };
+    const validation = validarCantidad(quantity, current.stock);
+    if (!validation.ok) return { ok: false, message: validation.message, available: current.stock };
+    const requested = validation.value;
+    setCart((items) => items.map((item) => item.productId === productId ? { ...item, quantity: requested } : item).filter((item) => item.quantity > 0));
+    return { ok: true };
+  };
+
+  const removeFromCart = (productId) => setCart((items) => items.filter((item) => item.productId !== productId));
+
+  const completePurchase = (orderData = {}) => {
+    if (cart.length === 0) return { ok: false, message: "El carrito está vacío." };
+    const nextProducts = products.map((product) => ({ ...product }));
+    const purchaseItems = cart.map((item) => ({
+      ...item,
+      product: products.find((product) => product.id === item.productId)
+    }));
+
+    for (const item of purchaseItems) {
+      if (!item.product) return { ok: false, message: "Uno de los productos ya no está disponible." };
+      const product = nextProducts.find((current) => current.id === item.productId);
+      if (!product || product.stock < item.quantity) return { ok: false, message: "El stock cambió. Revisa tu carrito e inténtalo nuevamente." };
+    }
+
+    purchaseItems.forEach((item) => {
+      const product = nextProducts.find((current) => current.id === item.productId);
+      product.stock -= item.quantity;
+    });
+
+    setProducts(guardarProductos(nextProducts));
+    setCart([]);
+    const subtotal = purchaseItems.reduce((sum, item) => sum + obtenerPrecioFinal(item.product) * item.quantity, 0);
+    const pedido = crearPedido({
+      ...orderData,
+      items: orderData.items || purchaseItems.map(({ product, quantity }) => ({ nombre: product.nombre, quantity, precio: obtenerPrecioFinal(product) })),
+      subtotal: orderData.subtotal ?? subtotal,
+      shipping: orderData.shipping ?? 0,
+      total: orderData.total ?? subtotal
+    });
+    return { ok: true, pedido };
+  };
+
+  const cartItems = useMemo(() => cart.map((item) => ({
+    ...item,
+    product: products.find((product) => product.id === item.productId)
+  })).filter((item) => item.product), [cart, products]);
+
+  const updateCategory = (previousCategory, nextCategory) => {
+    const normalized = String(nextCategory || "").trim();
+    const nextProducts = products.map((product) => product.categoria === previousCategory ? { ...product, categoria: normalized } : product);
+    setProducts(guardarProductos(nextProducts));
+    return nextProducts;
+  };
+
+  return <StoreContext.Provider value={{ products, cart: cartItems, cartCount: cart.reduce((total, item) => total + item.quantity, 0), addToCart, setCartQuantity, removeFromCart, completePurchase, refreshProducts, createProduct, updateProduct, updateCategory, deleteProduct }}>{children}</StoreContext.Provider>;
+}
+
+export function useStore() {
+  return useContext(StoreContext);
+}
+
+export function AuthProvider({ children }) {
+  const [session, setSession] = useState(() => getSession());
+  const [users, setUsers] = useState(() => leerUsuarios());
+  const signIn = (correo, password) => {
+    const nextSession = login(correo, password);
+    if (nextSession) setSession(nextSession);
+    return nextSession;
+  };
+  const signOut = () => {
+    logout();
+    setSession(null);
+  };
+  const refreshUsers = () => setUsers(leerUsuarios());
+  const createUser = (data) => {
+    const result = crearUsuario(data);
+    if (result.ok) refreshUsers();
+    return result;
+  };
+  const updateUser = (run, data) => {
+    const user = actualizarUsuario(run, data);
+    refreshUsers();
+    if (user && session?.run === String(run).toUpperCase()) {
+      const { password, ...safeUser } = user;
+      sessionStorage.setItem("usuarioActual", JSON.stringify(safeUser));
+      setSession(safeUser);
+    }
+    return user;
+  };
+  const deleteUser = (run) => {
+    const nextUsers = eliminarUsuario(run);
+    refreshUsers();
+    return nextUsers;
+  };
+  return <AuthContext.Provider value={{ session, users, signIn, signOut, createUser, updateUser, deleteUser }}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth() {
+  return useContext(AuthContext);
+}
+
+export default function App() {
+  return <BrowserRouter><AuthProvider><StoreProvider><Layout><Routes>
+    <Route path="/" element={<Home />} />
+    <Route path="/productos" element={<Products />} />
+    <Route path="/productos/:id" element={<ProductDetail />} />
+    <Route path="/categorias" element={<Categories />} />
+    <Route path="/ofertas" element={<Offers />} />
+    <Route path="/nosotros" element={<About />} />
+    <Route path="/blog" element={<Blog />} />
+    <Route path="/contacto" element={<Contact />} />
+    <Route path="/carrito" element={<Cart />} />
+    <Route path="/checkout" element={<Checkout />} />
+    <Route path="/compra-exitosa" element={<PurchaseSuccess />} />
+    <Route path="/compra-fallida" element={<PurchaseFailure />} />
+    <Route path="/login" element={<Login />} />
+    <Route path="/registro" element={<Register />} />
+    <Route path="/perfil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+    <Route path="/historial-compras" element={<ProtectedRoute><PurchaseHistory /></ProtectedRoute>} />
+    <Route path="/admin" element={<ProtectedRoute role="Administrador"><AdminDashboard /></ProtectedRoute>} />
+    <Route path="/admin/productos" element={<ProtectedRoute role="Administrador"><AdminProducts /></ProtectedRoute>} />
+    <Route path="/admin/productos/nuevo" element={<ProtectedRoute role="Administrador"><AdminProductForm /></ProtectedRoute>} />
+    <Route path="/admin/productos/:id/editar" element={<ProtectedRoute role="Administrador"><AdminProductForm /></ProtectedRoute>} />
+    <Route path="/admin/usuarios" element={<ProtectedRoute role="Administrador"><AdminUsers /></ProtectedRoute>} />
+    <Route path="/admin/usuarios/nuevo" element={<ProtectedRoute role="Administrador"><AdminUserForm /></ProtectedRoute>} />
+    <Route path="/admin/usuarios/:run/editar" element={<ProtectedRoute role="Administrador"><AdminUserForm /></ProtectedRoute>} />
+    <Route path="/admin/usuarios/:run/historial" element={<ProtectedRoute role="Administrador"><AdminUserHistory /></ProtectedRoute>} />
+    <Route path="/admin/categorias" element={<ProtectedRoute role="Administrador"><AdminCategories /></ProtectedRoute>} />
+    <Route path="/admin/reportes" element={<ProtectedRoute role="Administrador"><AdminReports /></ProtectedRoute>} />
+    <Route path="/admin/pedidos" element={<ProtectedRoute role="Administrador"><AdminOrders /></ProtectedRoute>} />
+    <Route path="/admin/pedidos/:id" element={<ProtectedRoute role="Administrador"><AdminOrderDetail /></ProtectedRoute>} />
+    <Route path="*" element={<Navigate to="/" replace />} />
+  </Routes></Layout></StoreProvider></AuthProvider></BrowserRouter>;
+}

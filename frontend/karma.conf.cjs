@@ -1,39 +1,34 @@
-
-const path = require('path')
-
-module.exports = function (config) {
-    config.set({
-        basePath: __dirname,
-
-        frameworks: ['jasmine'],
-
-        files: [
-            'tests/**/*.spec.js'
-        ],
-
-        preprocessors: {
-            'tests/**/*.spec.js': ['esbuild']
-        },
-
-        esbuild: {
-            target: 'es2020',
-            format: 'iife',
-            absWorkingDir: __dirname,
-            bundle: true,
-            resolveExtensions: ['.jsx', '.js', '.json'],
-            loader: {
-                '.js': 'jsx',
-                '.jsx': 'jsx'
-            },
-            jsx: 'automatic'
-        },
-
-        browsers: ['ChromeHeadless'],
-        singleRun: true,
-        reporters: ['progress'],
-
-        client: {
-            clearContext: false
-        }
-    })
-}
+module.exports = function configureKarma(config) {
+  config.set({
+    basePath: "",
+    frameworks: ["jasmine"],
+    files: [
+      { pattern: "public/img/**/*", included: false, served: true, watched: false },
+      { pattern: "tests/**/*.spec.js", watched: false }
+    ],
+    preprocessors: { "tests/**/*.spec.js": ["webpack"] },
+    proxies: { "/img/": "/base/public/img/" },
+    webpack: {
+      mode: "development",
+      devtool: "inline-source-map",
+      module: {
+        rules: [{
+          test: /\.[jt]sx?$/,
+          exclude: /node_modules/,
+          use: {
+            loader: "babel-loader",
+            options: {
+              presets: [["@babel/preset-react", { runtime: "automatic" }]]
+            }
+          }
+        }]
+      },
+      resolve: { extensions: [".js", ".jsx"] }
+    },
+    reporters: ["progress"],
+    browsers: ["ChromeHeadless"],
+    singleRun: true,
+    autoWatch: false,
+    plugins: ["karma-jasmine", "karma-chrome-launcher", "karma-webpack"]
+  });
+};
