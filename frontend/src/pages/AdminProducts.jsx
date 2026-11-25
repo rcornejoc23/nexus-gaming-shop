@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useStore } from "../App";
 import { obtenerPrecioFinal, tieneDescuento } from "../services/precios";
@@ -6,9 +7,16 @@ const formatPrice = (price) => `$ ${Number(price).toLocaleString("es-CL")}`;
 
 export default function AdminProducts() {
   const { products, deleteProduct } = useStore();
+  const [message, setMessage] = useState("");
 
-  const handleDelete = (product) => {
-    if (window.confirm(`¿Eliminar ${product.nombre}?`)) deleteProduct(product.id);
+  const handleDelete = async (product) => {
+    if (!window.confirm(`¿Eliminar ${product.nombre}?`)) return;
+    try {
+      await deleteProduct(product.id);
+      setMessage("");
+    } catch (err) {
+      setMessage(err.message);
+    }
   };
 
   return <div className="container py-5">
@@ -16,6 +24,7 @@ export default function AdminProducts() {
       <div><span className="text-uppercase small text-secondary">Panel interno</span><h1 className="mb-1">Productos</h1><p className="text-secondary mb-0">Los cambios se guardan en el catálogo compartido.</p></div>
       <div className="d-flex gap-2"><Link className="btn btn-outline-dark" to="/admin">Resumen</Link><Link className="btn btn-outline-dark" to="/admin/usuarios">Usuarios</Link><Link className="btn btn-dark" to="/admin/productos/nuevo">Nuevo producto</Link></div>
     </div>
+    {message && <div className="alert alert-warning" role="alert">{message}</div>}
     <div className="table-responsive bg-white rounded shadow-sm">
       <table className="table align-middle mb-0"><thead><tr><th>Código</th><th>Producto</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Acciones</th></tr></thead>
         <tbody>{products.map((product) => <tr key={product.id}>

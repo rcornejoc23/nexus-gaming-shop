@@ -1,9 +1,10 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { crearProducto, actualizarProducto, eliminarProducto, guardarProductos, leerProductos } from "./services/catalogo";
+import { crearProducto, actualizarProducto, eliminarProducto, leerProductos } from "./services/catalogo";
+import { actualizarCategoria, crearCategoria, eliminarCategoria, leerCategorias } from "./services/categorias";
+import { escucharSesion } from "./services/api";
 import { validarCantidad } from "./services/validaciones";
 import { crearPedido } from "./services/pedidos";
-import { obtenerPrecioFinal } from "./services/precios";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import Products from "./pages/Products";
@@ -19,8 +20,8 @@ import AdminProducts from "./pages/AdminProducts";
 import AdminProductForm from "./pages/AdminProductForm";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { getSession, login, logout } from "./services/auth";
-import { actualizarUsuario, crearUsuario, eliminarUsuario, leerUsuarios } from "./services/usuarios";
+import { login, logout, recuperarSesion } from "./services/auth";
+import { actualizarPerfil, actualizarUsuario, crearUsuario, desdeApi, eliminarUsuario, leerUsuarios, registrarUsuario } from "./services/usuarios";
 import AdminUsers from "./pages/AdminUsers";
 import AdminUserForm from "./pages/AdminUserForm";
 import AdminOrders from "./pages/AdminOrders";
@@ -49,38 +50,48 @@ function readCart() {
 }
 
 export function StoreProvider({ children }) {
-  const [products, setProducts] = useState(() => leerProductos());
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [cargandoCatalogo, setCargandoCatalogo] = useState(true);
+  const [errorCatalogo, setErrorCatalogo] = useState("");
   const [cart, setCart] = useState(() => readCart());
+  const [avisoCarrito, setAvisoCarrito] = useState("");
 
   useEffect(() => localStorage.setItem(CART_KEY, JSON.stringify(cart)), [cart]);
 
-  useEffect(() => {
-    const syncProducts = (event) => {
-      if (event.key === "productosAdmin") setProducts(leerProductos());
-    };
-    window.addEventListener("storage", syncProducts);
-    return () => window.removeEventListener("storage", syncProducts);
+  // Si falla se informa en pantalla; no lanza el error para no ocultar una acción que sí se guardó
+  const ultimaLectura = useRef(0);
+  const refreshProducts = useCallback(async () => {
+    const lectura = ++ultimaLectura.current;
+    try {
+      const [nextProducts, nextCategories] = await Promise.all([leerProductos(), leerCategorias()]);
+      // Si se pidió una lectura más nueva, esta respuesta ya no sirve
+      if (lectura !== ultimaLectura.current) return;
+      setProducts(nextProducts);
+      setCategories(nextCategories);
+      setErrorCatalogo("");
+    } catch (error) {
+      if (lectura === ultimaLectura.current) setErrorCatalogo(error.message);
+    } finally {
+      if (lectura === ultimaLectura.current) setCargandoCatalogo(false);
+    }
   }, []);
 
-  const refreshProducts = () => setProducts(leerProductos());
+  useEffect(() => { refreshProducts(); }, [refreshProducts]);
 
-  const createProduct = (data) => {
-    const product = crearProducto(data);
-    refreshProducts();
-    return product;
+  // Ejecuta un cambio en la API y luego vuelve a leer el catálogo
+  const conRecarga = (accion) => async (...args) => {
+    const resultado = await accion(...args);
+    await refreshProducts();
+    return resultado;
   };
 
-  const updateProduct = (id, data) => {
-    const product = actualizarProducto(id, data);
-    refreshProducts();
-    return product;
-  };
-
-  const deleteProduct = (id) => {
-    const nextProducts = eliminarProducto(id);
-    setProducts(nextProducts);
-    return nextProducts;
-  };
+  const createProduct = conRecarga(crearProducto);
+  const updateProduct = conRecarga(actualizarProducto);
+  const deleteProduct = conRecarga(eliminarProducto);
+  const createCategory = conRecarga(crearCategoria);
+  const updateCategory = conRecarga(actualizarCategoria);
+  const deleteCategory = conRecarga(eliminarCategoria);
 
   const addToCart = (product, quantity = 1) => {
     const current = products.find((item) => item.id === product.id);
@@ -93,7 +104,7 @@ export function StoreProvider({ children }) {
     if (!validation.ok) return { ok: false, requiresConfirmation: validation.requiresConfirmation, available, requested: Number(quantity), message: validation.message };
     const requested = validation.value;
 
-    setCart((items) => existing
+    setCart((items) => items.some((item) => item.productId === current.id)
       ? items.map((item) => item.productId === current.id ? { ...item, quantity: item.quantity + requested } : item)
       : [...items, { productId: current.id, quantity: requested }]);
     return { ok: true };
@@ -111,51 +122,41 @@ export function StoreProvider({ children }) {
 
   const removeFromCart = (productId) => setCart((items) => items.filter((item) => item.productId !== productId));
 
-  const completePurchase = (orderData = {}) => {
-    if (cart.length === 0) return { ok: false, message: "El carrito está vacío." };
-    const nextProducts = products.map((product) => ({ ...product }));
-    const purchaseItems = cart.map((item) => ({
-      ...item,
-      product: products.find((product) => product.id === item.productId)
-    }));
-
-    for (const item of purchaseItems) {
-      if (!item.product) return { ok: false, message: "Uno de los productos ya no está disponible." };
-      const product = nextProducts.find((current) => current.id === item.productId);
-      if (!product || product.stock < item.quantity) return { ok: false, message: "El stock cambió. Revisa tu carrito e inténtalo nuevamente." };
-    }
-
-    purchaseItems.forEach((item) => {
-      const product = nextProducts.find((current) => current.id === item.productId);
-      product.stock -= item.quantity;
-    });
-
-    setProducts(guardarProductos(nextProducts));
-    setCart([]);
-    const subtotal = purchaseItems.reduce((sum, item) => sum + obtenerPrecioFinal(item.product) * item.quantity, 0);
-    const pedido = crearPedido({
-      ...orderData,
-      items: orderData.items || purchaseItems.map(({ product, quantity }) => ({ nombre: product.nombre, quantity, precio: obtenerPrecioFinal(product) })),
-      subtotal: orderData.subtotal ?? subtotal,
-      shipping: orderData.shipping ?? 0,
-      total: orderData.total ?? subtotal
-    });
-    return { ok: true, pedido };
-  };
-
   const cartItems = useMemo(() => cart.map((item) => ({
     ...item,
     product: products.find((product) => product.id === item.productId)
   })).filter((item) => item.product), [cart, products]);
 
-  const updateCategory = (previousCategory, nextCategory) => {
-    const normalized = String(nextCategory || "").trim();
-    const nextProducts = products.map((product) => product.categoria === previousCategory ? { ...product, categoria: normalized } : product);
-    setProducts(guardarProductos(nextProducts));
-    return nextProducts;
+  // Quita del carrito los productos eliminados del catálogo y lo avisa
+  useEffect(() => {
+    if (cargandoCatalogo || errorCatalogo || cartItems.length === cart.length) return;
+    setCart(cartItems.map(({ productId, quantity }) => ({ productId, quantity })));
+    setAvisoCarrito("Quitamos de tu carrito un producto que ya no está disponible.");
+  }, [cargandoCatalogo, errorCatalogo, cart, cartItems]);
+
+  // El servidor valida el stock y calcula el total; aquí solo se envían ids y cantidades
+  const completePurchase = async (orderData) => {
+    if (cartItems.length !== cart.length) return { ok: false, message: "Un producto de tu carrito ya no está disponible. Revisa tu compra." };
+    if (cartItems.length === 0) return { ok: false, message: "El carrito está vacío." };
+    try {
+      const items = cartItems.map((item) => ({ productoId: item.productId, cantidad: item.quantity }));
+      const pedido = await crearPedido({ ...orderData, items });
+      setCart([]);
+      await refreshProducts();
+      return { ok: true, pedido };
+    } catch (error) {
+      await refreshProducts();
+      return { ok: false, message: error.message };
+    }
   };
 
-  return <StoreContext.Provider value={{ products, cart: cartItems, cartCount: cart.reduce((total, item) => total + item.quantity, 0), addToCart, setCartQuantity, removeFromCart, completePurchase, refreshProducts, createProduct, updateProduct, updateCategory, deleteProduct }}>{children}</StoreContext.Provider>;
+  const value = {
+    products, categories, cargandoCatalogo, errorCatalogo, refreshProducts,
+    cart: cartItems, cartCount: cartItems.reduce((total, item) => total + item.quantity, 0),
+    avisoCarrito, cerrarAviso: () => setAvisoCarrito(""), addToCart, setCartQuantity, removeFromCart, completePurchase,
+    createProduct, updateProduct, deleteProduct, createCategory, updateCategory, deleteCategory
+  };
+  return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }
 
 export function useStore() {
@@ -163,39 +164,72 @@ export function useStore() {
 }
 
 export function AuthProvider({ children }) {
-  const [session, setSession] = useState(() => getSession());
-  const [users, setUsers] = useState(() => leerUsuarios());
-  const signIn = (correo, password) => {
-    const nextSession = login(correo, password);
-    if (nextSession) setSession(nextSession);
-    return nextSession;
-  };
-  const signOut = () => {
-    logout();
-    setSession(null);
-  };
-  const refreshUsers = () => setUsers(leerUsuarios());
-  const createUser = (data) => {
-    const result = crearUsuario(data);
-    if (result.ok) refreshUsers();
-    return result;
-  };
-  const updateUser = (run, data) => {
-    const user = actualizarUsuario(run, data);
-    refreshUsers();
-    if (user && session?.run === String(run).toUpperCase()) {
-      const { password, ...safeUser } = user;
-      sessionStorage.setItem("usuarioActual", JSON.stringify(safeUser));
-      setSession(safeUser);
+  const [session, setSession] = useState(null);
+  const [cargandoSesion, setCargandoSesion] = useState(true);
+  const [users, setUsers] = useState([]);
+  const [errorUsuarios, setErrorUsuarios] = useState("");
+  const esAdmin = session?.tipo === "Administrador";
+
+  // api.js avisa cuando la sesión se inicia, se renueva o expira
+  useEffect(() => {
+    escucharSesion((usuario) => setSession(desdeApi(usuario)));
+    recuperarSesion().finally(() => setCargandoSesion(false));
+    return () => escucharSesion(() => {});
+  }, []);
+
+  const ultimaLectura = useRef(0);
+  const refreshUsers = useCallback(async () => {
+    const lectura = ++ultimaLectura.current;
+    try {
+      const nextUsers = await leerUsuarios();
+      if (lectura !== ultimaLectura.current) return;
+      setUsers(nextUsers);
+      setErrorUsuarios("");
+    } catch (error) {
+      if (lectura === ultimaLectura.current) setErrorUsuarios(`No se pudo actualizar la lista de usuarios. ${error.message}`);
     }
+  }, []);
+
+  // La lista de usuarios solo se pide si quien entró es administrador
+  useEffect(() => {
+    if (esAdmin) refreshUsers();
+    else {
+      ultimaLectura.current += 1; // descarta una lectura pendiente al cerrar sesión
+      setUsers([]);
+    }
+  }, [esAdmin, refreshUsers]);
+
+  const signIn = async (correo, password) => desdeApi(await login(correo, password));
+
+  const signOut = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      window.alert(`No se pudo cerrar la sesión. ${error.message}`);
+    }
+  };
+
+  const createUser = async (data) => {
+    const user = await crearUsuario(data);
+    await refreshUsers();
     return user;
   };
-  const deleteUser = (run) => {
-    const nextUsers = eliminarUsuario(run);
-    refreshUsers();
-    return nextUsers;
+  const updateUser = async (id, data) => {
+    const user = await actualizarUsuario(id, data);
+    if (id === session?.id) setSession(user);
+    await refreshUsers();
+    return user;
   };
-  return <AuthContext.Provider value={{ session, users, signIn, signOut, createUser, updateUser, deleteUser }}>{children}</AuthContext.Provider>;
+  const updateProfile = async (data) => {
+    const user = await actualizarPerfil(data);
+    setSession(user);
+    return user;
+  };
+  const deleteUser = async (id) => {
+    await eliminarUsuario(id);
+    await refreshUsers();
+  };
+  return <AuthContext.Provider value={{ session, cargandoSesion, users, errorUsuarios, signIn, signOut, register: registrarUsuario, createUser, updateUser, updateProfile, deleteUser }}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
@@ -213,8 +247,8 @@ export default function App() {
     <Route path="/blog" element={<Blog />} />
     <Route path="/contacto" element={<Contact />} />
     <Route path="/carrito" element={<Cart />} />
-    <Route path="/checkout" element={<Checkout />} />
-    <Route path="/compra-exitosa" element={<PurchaseSuccess />} />
+    <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+    <Route path="/compra-exitosa" element={<ProtectedRoute><PurchaseSuccess /></ProtectedRoute>} />
     <Route path="/compra-fallida" element={<PurchaseFailure />} />
     <Route path="/login" element={<Login />} />
     <Route path="/registro" element={<Register />} />

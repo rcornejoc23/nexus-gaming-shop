@@ -1,19 +1,6 @@
-const CATEGORIES_KEY = "categoriasNexus";
+import { del, get, post, put } from "./api.js";
 
-export function leerCategorias(productos = []) {
-  let saved = [];
-  try {
-    const parsed = JSON.parse(localStorage.getItem(CATEGORIES_KEY) || "[]");
-    saved = Array.isArray(parsed) ? parsed.filter((item) => typeof item === "string") : [];
-  } catch {
-    saved = [];
-  }
-
-  return [...new Set([...saved, ...productos.map((product) => product.categoria).filter(Boolean)])].sort((a, b) => a.localeCompare(b, "es"));
-}
-
-export function guardarCategorias(categorias) {
-  const normalized = [...new Set(categorias.map((item) => String(item).trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, "es"));
-  localStorage.setItem(CATEGORIES_KEY, JSON.stringify(normalized));
-  return normalized;
-}
+export const leerCategorias = async () => (await get("/api/categorias")).sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+export const crearCategoria = (nombre) => post("/api/categorias", { nombre });
+export const actualizarCategoria = (id, nombre) => put(`/api/categorias/${id}`, { nombre });
+export const eliminarCategoria = (id) => del(`/api/categorias/${id}`);

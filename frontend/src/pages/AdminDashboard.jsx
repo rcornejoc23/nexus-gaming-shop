@@ -1,11 +1,14 @@
 import { Link } from "react-router-dom";
 import { useAuth, useStore } from "../App";
+import Estado from "../components/Estado";
+import { useCarga } from "../services/useCarga";
 import { leerPedidos } from "../services/pedidos";
 
 export default function AdminDashboard() {
   const { products } = useStore();
   const { users } = useAuth();
-  const orders = leerPedidos();
+  const { data: orders, error } = useCarga(leerPedidos);
+  if (!orders) return <Estado error={error} />;
   const sales = orders.filter((order) => order.estado !== "Cancelado").reduce((sum, order) => sum + order.total, 0);
   const critical = products.filter((product) => product.stock <= product.stockCritico);
 

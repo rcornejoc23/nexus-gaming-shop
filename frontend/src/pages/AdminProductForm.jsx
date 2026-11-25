@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useStore } from "../App";
-import { leerCategorias } from "../services/categorias";
 
-const emptyForm = { codigo: "", nombre: "", descripcion: "", precio: "", descuento: "0", stock: "", stockCritico: "", categoria: "Accesorios", imagen: "/img/hero.jpg" };
+const emptyForm = { codigo: "", nombre: "", descripcion: "", precio: "", descuento: "0", stock: "", stockCritico: "", categoriaId: "", imagen: "/img/hero.jpg" };
 
 export default function AdminProductForm() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { products, createProduct, updateProduct } = useStore();
-  const categories = leerCategorias(products);
+  const { products, categories, createProduct, updateProduct } = useStore();
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState("");
   const editing = Boolean(id);
@@ -22,7 +20,7 @@ export default function AdminProductForm() {
 
   const change = (event) => setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
 
-  const submit = (event) => {
+  const submit = async (event) => {
     event.preventDefault();
     const precio = Number(form.precio);
     const descuento = Number(form.descuento);
@@ -33,8 +31,14 @@ export default function AdminProductForm() {
     if (!Number.isInteger(descuento) || descuento < 0 || descuento > 100) return setError("El descuento debe ser un entero entre 0 y 100.");
     if (!Number.isInteger(stock) || stock < 0) return setError("El stock debe ser un entero igual o mayor que cero.");
     if (!Number.isInteger(stockCritico) || stockCritico < 0) return setError("El stock crítico debe ser un entero igual o mayor que cero.");
-    const data = { ...form, codigo: form.codigo.trim().toUpperCase(), nombre: form.nombre.trim(), descripcion: form.descripcion.trim(), precio, descuento, stock, stockCritico };
-    if (editing) updateProduct(id, data); else createProduct(data);
+    if (!form.categoriaId) return setError("Selecciona una categoría.");
+    const data = { ...form, codigo: form.codigo.trim().toUpperCase(), nombre: form.nombre.trim(), descripcion: form.descripcion.trim(), precio, descuento, stock, stockCritico, categoriaId: Number(form.categoriaId) };
+    try {
+      if (editing) await updateProduct(id, data);
+      else await createProduct(data);
+    } catch (err) {
+      return setError(err.message);
+    }
     navigate("/admin/productos");
   };
 
@@ -50,7 +54,7 @@ export default function AdminProductForm() {
         <div className="col-md-4"><label className="form-label" htmlFor="descuento">Descuento (%)</label><input className="form-control" id="descuento" name="descuento" type="number" min="0" max="100" step="1" value={form.descuento} onChange={change} /></div>
         <div className="col-md-4"><label className="form-label" htmlFor="stock">Stock</label><input className="form-control" id="stock" name="stock" type="number" min="0" step="1" value={form.stock} onChange={change} /></div>
         <div className="col-md-4"><label className="form-label" htmlFor="stockCritico">Stock crítico</label><input className="form-control" id="stockCritico" name="stockCritico" type="number" min="0" step="1" value={form.stockCritico} onChange={change} /></div>
-        <div className="col-md-6"><label className="form-label" htmlFor="categoria">Categoría</label><select className="form-select" id="categoria" name="categoria" value={form.categoria} onChange={change}>{categories.map((category) => <option key={category}>{category}</option>)}</select></div>
+        <div className="col-md-6"><label className="form-label" htmlFor="categoria">Categoría</label><select className="form-select" id="categoria" name="categoriaId" value={form.categoriaId} onChange={change}><option value="">Selecciona una categoría</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.nombre}</option>)}</select></div>
         <div className="col-md-6"><label className="form-label" htmlFor="imagen">Imagen</label><input className="form-control" id="imagen" name="imagen" value={form.imagen} onChange={change} /></div>
       </div>
       <div className="d-flex justify-content-end gap-2 mt-4"><Link className="btn btn-outline-secondary" to="/admin/productos">Cancelar</Link><button className="btn btn-dark" type="submit">Guardar producto</button></div>
