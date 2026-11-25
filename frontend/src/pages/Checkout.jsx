@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useStore } from "../App";
+import { useAuth, useStore } from "../App";
 import { obtenerPrecioFinal } from "../services/precios";
 
 const initialForm = {
@@ -25,18 +25,21 @@ const formatPrice = (price) => `$${Number(price).toLocaleString("es-CL")}`;
 export default function Checkout() {
   const { cart, completePurchase } = useStore();
   const navigate = useNavigate();
-  const [form, setForm] = useState(initialForm);
+  const { session } = useAuth();
+  // Se completan los datos que ya están en la cuenta
+  const [form, setForm] = useState(() => ({ ...initialForm, correo: session.correo, nombre: session.nombre, apellidos: session.apellidos, direccion: session.direccion, comuna: session.comuna, region: session.region }));
+  const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState("");
 
   const subtotal = useMemo(() => cart.reduce((sum, item) => sum + obtenerPrecioFinal(item.product) * item.quantity, 0), [cart]);
   const shipping = form.entrega === "express" ? 4990 : 0;
   const total = subtotal + shipping;
 
-  if (cart.length === 0) return <section className="container py-5"><div className="alert alert-info">No hay productos para comprar. <Link to="/productos">Volver a la tienda</Link></div></section>;
+  if (cart.length === 0 && !enviando) return <section className="container py-5"><div className="alert alert-info">No hay productos para comprar. <Link to="/productos">Volver a la tienda</Link></div></section>;
 
   const updateField = (event) => setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
 
-  const submit = (event) => {
+  const submit = async (event) => {
     event.preventDefault();
     setError("");
 
@@ -51,32 +54,10 @@ export default function Checkout() {
       if (!/^\d{16}$/.test(cardNumber) || !/^\d{2}\/\d{2}$/.test(form.vencimiento) || !/^\d{3,4}$/.test(form.cvv)) return setError("Completa correctamente los datos de la tarjeta simulada.");
     }
 
-    const receipt = {
-      orderNumber: `NXS-${Date.now().toString().slice(-8)}`,
-      createdAt: new Date().toLocaleString("es-CL"),
-      customer: {
-        nombre: `${form.nombre} ${form.apellidos}`.trim(),
-        correo: form.correo,
-        telefono: form.telefono,
-        direccion: form.direccion,
-        departamento: form.departamento,
-        comuna: form.comuna,
-        region: form.region,
-        codigoPostal: form.codigoPostal
-      },
-      delivery: form.entrega === "express" ? "Envío express" : "Envío estándar",
-      payment: form.pago === "tarjeta" ? "Tarjeta simulada" : "Transferencia bancaria",
-      items: cart.map(({ product, quantity }) => ({
-        nombre: product.nombre,
-        quantity,
-        precio: obtenerPrecioFinal(product)
-      })),
-      subtotal,
-      shipping,
-      total
-    };
-
-    const result = completePurchase(receipt);
+    // Los datos de la tarjeta simulada nunca se envían al servidor
+    const { nombre, apellidos, numeroTarjeta, vencimiento, cvv, ...datos } = form;
+    setEnviando(true);
+    const result = await completePurchase({ ...datos, nombreContacto: `${nombre} ${apellidos}`.trim() });
     if (!result.ok) return navigate("/compra-fallida", { state: { message: result.message } });
     navigate("/compra-exitosa", { state: { receipt: result.pedido } });
   };
@@ -94,7 +75,7 @@ export default function Checkout() {
           <div className="checkout-card mb-3"><div className="checkout-section-heading"><span>3</span><div><h2>Método de entrega</h2><p>Elige cómo quieres recibir tu pedido.</p></div></div><label className={`checkout-option ${form.entrega === "estandar" ? "selected" : ""}`}><input type="radio" name="entrega" value="estandar" checked={form.entrega === "estandar"} onChange={updateField} /><span><strong>Envío estándar</strong><small>Entrega estimada entre 3 y 5 días hábiles</small></span><b>Gratis</b></label><label className={`checkout-option ${form.entrega === "express" ? "selected" : ""}`}><input type="radio" name="entrega" value="express" checked={form.entrega === "express"} onChange={updateField} /><span><strong>Envío express</strong><small>Entrega estimada entre 1 y 2 días hábiles</small></span><b>{formatPrice(4990)}</b></label></div>
 
           <div className="checkout-card mb-3"><div className="checkout-section-heading"><span>4</span><div><h2>Pago</h2><p>Este proyecto usa un pago simulado para la evaluación.</p></div></div><label className={`checkout-option ${form.pago === "tarjeta" ? "selected" : ""}`}><input type="radio" name="pago" value="tarjeta" checked={form.pago === "tarjeta"} onChange={updateField} /><span><strong>Tarjeta de crédito o débito</strong><small>Pago seguro simulado</small></span><span className="payment-icons">VISA · MC</span></label><label className={`checkout-option ${form.pago === "transferencia" ? "selected" : ""}`}><input type="radio" name="pago" value="transferencia" checked={form.pago === "transferencia"} onChange={updateField} /><span><strong>Transferencia bancaria</strong><small>Se mostrarán los datos después de confirmar</small></span></label>{form.pago === "tarjeta" && <div className="row g-3 mt-1"><div className="col-12"><label className="form-label" htmlFor="cardNumber">Número de tarjeta</label><input className="form-control" id="cardNumber" name="numeroTarjeta" inputMode="numeric" placeholder="0000 0000 0000 0000" maxLength="19" value={form.numeroTarjeta} onChange={updateField} /></div><div className="col-md-6"><label className="form-label" htmlFor="cardExpiry">Vencimiento</label><input className="form-control" id="cardExpiry" name="vencimiento" placeholder="MM/AA" maxLength="5" value={form.vencimiento} onChange={updateField} /></div><div className="col-md-6"><label className="form-label" htmlFor="cardCvv">CVV</label><input className="form-control" id="cardCvv" name="cvv" inputMode="numeric" placeholder="123" maxLength="4" value={form.cvv} onChange={updateField} /></div></div>}</div>
-          <button className="btn btn-dark btn-lg w-100 checkout-submit" type="submit">Completar pedido · {formatPrice(total)}</button>
+          <button className="btn btn-dark btn-lg w-100 checkout-submit" type="submit" disabled={enviando}>Completar pedido · {formatPrice(total)}</button>
           <p className="small text-secondary text-center mt-3">Al completar el pedido se validará nuevamente el stock disponible.</p>
         </div>
 

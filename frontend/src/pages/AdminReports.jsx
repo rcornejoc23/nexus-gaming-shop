@@ -1,12 +1,15 @@
 import { Link } from "react-router-dom";
 import { useStore } from "../App";
+import Estado from "../components/Estado";
+import { useCarga } from "../services/useCarga";
 import { leerPedidos } from "../services/pedidos";
 
 const money = (value) => `$${Number(value || 0).toLocaleString("es-CL")}`;
 
 export default function AdminReports() {
   const { products } = useStore();
-  const orders = leerPedidos();
+  const { data: orders, error } = useCarga(leerPedidos);
+  if (!orders) return <Estado error={error} />;
   const sales = orders.filter((order) => order.estado !== "Cancelado").reduce((sum, order) => sum + order.total, 0);
   const units = orders.filter((order) => order.estado !== "Cancelado").reduce((sum, order) => sum + order.items.reduce((items, item) => items + item.quantity, 0), 0);
   const critical = products.filter((product) => product.stock <= product.stockCritico);

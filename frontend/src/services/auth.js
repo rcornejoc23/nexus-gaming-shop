@@ -1,27 +1,22 @@
-const SESSION_KEY = "usuarioActual";
-import { leerUsuarios } from "./usuarios.js";
+import { guardarSesion, post, renovarSesion } from "./api.js";
 
-function withoutPassword(usuario) {
-  const { password, ...session } = usuario;
-  return session;
+export async function login(correo, password) {
+  const respuesta = await post("/api/auth/login", { correo, password });
+  guardarSesion(respuesta);
+  return respuesta.usuario;
 }
 
-export function getSession() {
+// Al recargar la página recupera la sesión desde la cookie HttpOnly
+export async function recuperarSesion() {
   try {
-    return JSON.parse(sessionStorage.getItem(SESSION_KEY)) || null;
-  } catch {
-    return null;
+    await renovarSesion();
+  } catch (error) {
+    if (error.status !== 401) console.warn("No se pudo recuperar la sesión.", error.message);
   }
 }
 
-export function login(correo, password) {
-  const user = leerUsuarios().find((item) => item.correo.toLowerCase() === correo.trim().toLowerCase() && item.password === password);
-  if (!user) return null;
-  const session = withoutPassword(user);
-  sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
-  return session;
-}
-
-export function logout() {
-  sessionStorage.removeItem(SESSION_KEY);
+// Si el servidor no responde, el error llega a la pantalla: la cookie seguiría activa
+export async function logout() {
+  await post("/api/auth/logout");
+  guardarSesion(null);
 }

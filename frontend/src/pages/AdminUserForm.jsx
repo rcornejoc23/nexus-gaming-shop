@@ -25,7 +25,7 @@ export default function AdminUserForm() {
     setForm((current) => name === "region" ? { ...current, region: value, comuna: "" } : { ...current, [name]: value });
   };
 
-  const submit = (event) => {
+  const submit = async (event) => {
     event.preventDefault();
     setError("");
     const normalizedRun = form.run.trim().toUpperCase();
@@ -40,8 +40,12 @@ export default function AdminUserForm() {
     if (users.some((user) => user.correo === correo && user.run !== (editing ? decodeURIComponent(run) : normalizedRun))) return setError("Ya existe un usuario con ese correo.");
 
     const data = { ...form, run: normalizedRun, correo, nombre: form.nombre.trim(), apellidos: form.apellidos.trim(), direccion: form.direccion.trim() };
-    const result = editing ? { ok: true, user: updateUser(decodeURIComponent(run), data) } : createUser(data);
-    if (!result.ok) return setError(result.message);
+    try {
+      if (editing) await updateUser(form.id, data);
+      else await createUser(data);
+    } catch (err) {
+      return setError(err.message);
+    }
     navigate("/admin/usuarios");
   };
 

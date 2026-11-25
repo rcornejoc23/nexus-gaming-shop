@@ -1,11 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
-import { obtenerUltimoPedido } from "../services/pedidos";
 
 export default function PurchaseSuccess() {
   const { state } = useLocation();
-  const receipt = state?.receipt || obtenerUltimoPedido();
+  const receipt = state?.receipt;
 
-  if (!receipt) return <section className="container py-5"><div className="alert alert-success text-center"><h1>Compra realizada</h1><p>Tu pedido fue registrado correctamente.</p><Link className="btn btn-success" to="/productos">Seguir comprando</Link></div></section>;
+  if (!receipt) return <section className="container py-5"><div className="alert alert-info text-center"><h1>Tus compras</h1><p>Puedes revisar tus pedidos en el historial.</p><Link className="btn btn-primary" to="/historial-compras">Ver historial</Link></div></section>;
 
   return <section className="container py-4 py-lg-5 receipt-page">
     <div className="receipt-success text-center mb-4"><div className="receipt-check">✓</div><h1>Compra realizada</h1><p className="text-secondary mb-0">Gracias, {receipt.customer.nombre}. Tu pedido fue registrado correctamente.</p></div>

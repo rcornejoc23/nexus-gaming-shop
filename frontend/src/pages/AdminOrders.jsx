@@ -1,24 +1,21 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import Estado from "../components/Estado";
+import { useCarga } from "../services/useCarga";
 import { estadosPedido, leerPedidos } from "../services/pedidos";
 
 const formatPrice = (price) => `$ ${Number(price).toLocaleString("es-CL")}`;
 
 export default function AdminOrders() {
-  const [orders, setOrders] = useState(() => leerPedidos());
+  const { data: orders, error, recargar } = useCarga(leerPedidos);
 
+  // Al volver a la pestaña se consultan los pedidos nuevos
   useEffect(() => {
-    const refreshOrders = () => setOrders(leerPedidos());
-    const syncOrders = (event) => {
-      if (event.key === "pedidosNexus" || event.key === "ultimoPedidoNexus") refreshOrders();
-    };
-    window.addEventListener("storage", syncOrders);
-    window.addEventListener("focus", refreshOrders);
-    return () => {
-      window.removeEventListener("storage", syncOrders);
-      window.removeEventListener("focus", refreshOrders);
-    };
-  }, []);
+    window.addEventListener("focus", recargar);
+    return () => window.removeEventListener("focus", recargar);
+  }, [recargar]);
+
+  if (!orders) return <Estado error={error} />;
 
   return <div className="container py-5">
     <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
