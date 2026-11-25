@@ -1,29 +1,38 @@
 # NEXUS Gaming
 
-Tienda online de productos gaming desarrollada con HTML, CSS y JavaScript para la Evaluación Parcial 1 de Desarrollo Fullstack II.
+Tienda online de productos gaming. Evaluación Parcial 3 de Desarrollo Fullstack II.
 
-## Funcionalidades
+| Carpeta | Contenido |
+|---|---|
+| `frontend/` | Versión actual: React + Vite conectada a la API REST |
+| `entrega/` | Manual de usuario y documento de integración |
+| Raíz (`*.html`, `js/`, `css/`, `admin/`) | Versión HTML de la Evaluación 1, que usa `localStorage` |
 
-- Catálogo de productos con detalle por identificador.
-- Carrito persistente usando `localStorage`.
-- Registro y login de usuarios para la demo.
-- Panel administrativo protegido para gestionar productos y usuarios.
-- Validaciones personalizadas para formularios.
-- Diseño responsive con hojas de estilo externas.
-
-## Ejecutar el proyecto
-
-El proyecto no necesita instalación de dependencias. Puede abrirse con un servidor local, por ejemplo:
+## Ejecutar
+Requisitos: Node.js 20 o superior y el backend `nexus-gaming-backend` corriendo en `http://localhost:8080`.
 
 ```bash
-python3 -m http.server 8000
+cd frontend
+npm install
+npm run dev
 ```
 
-Luego visita `http://localhost:8000`.
+Abrir `http://localhost:5173`. El puerto es fijo porque el CORS del backend solo acepta ese origen.
+Para usar otra URL de API, copiar `.env.example` a `.env`.
 
-## Usuario administrador de demostración
+## Usuarios de demostración
+| Rol | Correo | Contraseña |
+|---|---|---|
+| Administrador | `admin@duoc.cl` | `Admin123` |
+| Cliente | `cliente@gmail.com` | `Cliente123` |
 
-- Correo: `admin@duoc.cl`
-- Contraseña: `Admin123`
+## Sesión y permisos
+- Access token en memoria y refresh token en cookie `HttpOnly`; la sesión se mantiene al recargar.
+- `ProtectedRoute` restringe las pantallas según sesión y rol. El backend valida cada petición.
+- `localStorage` solo guarda el carrito y los mensajes de contacto.
 
-Los usuarios y productos se guardan localmente en el navegador mediante `localStorage`. Esta implementación es apropiada para una demostración frontend, pero no reemplaza una autenticación ni una base de datos de producción.
+## Pruebas
+```bash
+cd frontend
+npm test
+```
